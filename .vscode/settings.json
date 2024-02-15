@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\jenni\\OneDrive\\Desktop\\Betacraft-WP\\JLog.jar"
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
