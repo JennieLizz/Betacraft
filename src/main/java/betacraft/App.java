@@ -1,6 +1,6 @@
 package betacraft;
 
-import static jlog.JLog.Print;
+import static jlog.JLog.*;
 
 import betacraft.engine.Display;
 import jlog.JLog.TYPE;
@@ -9,6 +9,7 @@ import org.lwjgl.Version;
 public class App {
 
   public static void main(String[] args) {
+		showTime = true;
     Print("Betacraft - " + Version.getVersion(), TYPE.INFO);
     Print("Starting Engine...", TYPE.INFO);
 
