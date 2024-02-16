@@ -3,7 +3,7 @@ package betacraft.utils;
 import org.joml.Vector3f;
 
 public class EMath {
-  public class Indices {
+  public class Vertices {
     public static float[] ToFloatArray(Vector3f vectors[]) {
       float[] floats = new float[vectors.length * 3];
 

@@ -30,17 +30,21 @@ import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
@@ -48,17 +52,17 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import betacraft.graphics.Shader;
 import betacraft.graphics.ShaderManager;
-import betacraft.utils.EMath;
 import betacraft.utils.JLog;
 
 public class Display {
@@ -68,14 +72,20 @@ public class Display {
   int m_width, m_height;
   String m_title;
 
-  public Vector3f verts[] = {
-      new Vector3f(0.0f, 0.5f, 0.0f),
-      new Vector3f(0.5f, -0.5f, 0.0f),
-      new Vector3f(-0.5f, -0.5f, 0.0f)
+  float[] vertices = {
+      -0.5f, 0.5f, 0, // V0
+      -0.5f, -0.5f, 0, // V1
+      0.5f, -0.5f, 0, // V2
+      0.5f, 0.5f, 0 // V3
   };
 
-  int m_vaoId;
-  int m_vboId;
+  int[] indices = {
+      0, 1, 3, // Top left triangle (V0,V1,V3)
+      3, 1, 2 // Bottom right triangle (V3,V1,V2)
+  };
+
+  int m_vboID, m_vboID2, m_vaoID;
+  Shader s;
 
   public Display(final int width, final int height, final String title) {
     SetWidth(width);
@@ -128,6 +138,26 @@ public class Display {
     GL.createCapabilities();
 
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+
+    s = new Shader("test", "src/main/resources/shaders/Default.vert", "src/main/resources/shaders/Default.frag");
+
+    m_vaoID = glGenVertexArrays();
+    glBindVertexArray(m_vaoID);
+
+    m_vboID = glGenBuffers();
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+
+    FloatBuffer m_vert = StoreDataInFloatBuffer(vertices);
+    glBufferData(GL_ARRAY_BUFFER, m_vert, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    m_vboID2 = glGenBuffers();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboID2);
+    IntBuffer m_ind = StoreDataInIntBuffer(indices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ind, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
   }
 
   public int GetWidth() {
@@ -158,9 +188,15 @@ public class Display {
     glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindVertexArray(m_vaoId);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    s.Use();
+
+    glBindVertexArray(m_vaoID);
+    glEnableVertexAttribArray(0);
+    glDrawElements(GL_TRIANGLES, vertices.length, GL_UNSIGNED_INT, 0);
+    glDisableVertexAttribArray(0);
     glBindVertexArray(0);
+
+    glUseProgram(0);
 
     glfwSwapBuffers(m_frame);
     glfwPollEvents();
@@ -171,8 +207,9 @@ public class Display {
   }
 
   public void Close() {
-    glDeleteBuffers(m_vboId);
-    glDeleteVertexArrays(m_vaoId);
+    glDeleteBuffers(m_vboID);
+    glDeleteBuffers(m_vboID2);
+    glDeleteVertexArrays(m_vaoID);
 
     ShaderManager.DeleteShaders();
 
@@ -183,25 +220,17 @@ public class Display {
     glfwSetErrorCallback(null).free();
   }
 
-  public void TestGraphics() {
-    final IntBuffer vbo = BufferUtils.createIntBuffer(1);
-    glGenBuffers(vbo);
-    vbo.rewind();
-    m_vboId = vbo.get();
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
+  private IntBuffer StoreDataInIntBuffer(int[] data) {
+    IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
+    buffer.put(data);
+    buffer.flip();
+    return buffer;
+  }
 
-    glBufferData(GL_ARRAY_BUFFER, EMath.Indices.ToFloatArray(verts), GL_STATIC_DRAW);
-
-    final IntBuffer vao = BufferUtils.createIntBuffer(1);
-    glGenVertexArrays(vao);
-    vao.rewind();
-    m_vaoId = vao.get();
-    glBindVertexArray(m_vaoId);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  private FloatBuffer StoreDataInFloatBuffer(float[] data) {
+    FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
+    buffer.put(data);
+    buffer.flip();
+    return buffer;
   }
 }

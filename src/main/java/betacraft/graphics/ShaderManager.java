@@ -2,6 +2,7 @@ package betacraft.graphics;
 
 import static org.lwjgl.opengl.GL20.glDeleteProgram;
 import static org.lwjgl.opengl.GL20.glDeleteShader;
+import static org.lwjgl.opengl.GL20.glDetachShader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,9 +38,11 @@ public class ShaderManager {
 
   public static void DeleteShaders() {
     m_vertex.entrySet().stream().forEach(entry -> {
+      glDetachShader(GetProgram(entry.getKey()), GetVertexShader(entry.getKey()));
       glDeleteShader(GetVertexShader(entry.getKey()));
     });
     m_fragment.entrySet().stream().forEach(entry -> {
+      glDetachShader(GetProgram(entry.getKey()), GetFragmentShader(entry.getKey()));
       glDeleteShader(GetFragmentShader(entry.getKey()));
     });
     m_program.entrySet().stream().forEach(entry -> {

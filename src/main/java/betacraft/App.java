@@ -1,7 +1,6 @@
 package betacraft;
 
 import betacraft.engine.Display;
-import betacraft.graphics.ShaderManager;
 import betacraft.utils.JLog;
 import org.lwjgl.Version;
 
@@ -14,7 +13,6 @@ public class App {
     jl.Print("Starting Engine...", JLog.TYPE.INFO, false, null);
 
     Display d = new Display(1280, 720, "Betacraft");
-    d.TestGraphics();
     jl.Print("Display Setup - Complete...", JLog.TYPE.INFO, false, null);
     while (d.IsOpen())
       d.Update();

@@ -1,7 +1,5 @@
 package betacraft.utils;
 
-import java.io.PrintStream;
-
 public class JLog {
   /*
    * public static void main(String[] args) {
