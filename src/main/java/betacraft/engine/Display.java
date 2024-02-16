@@ -47,7 +47,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.IntBuffer;
+import java.util.Vector;
 
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -60,38 +62,38 @@ public class Display {
   private int width, height;
   private String title;
 
-  float points[] = { 0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, -0.5f, -0.5f, 0.0f };
+  public Vector3f verts[] = { new Vector3f(0.0f, 0.5f, 0.0f),
+      new Vector3f(0.5f, -0.5f, 0.0f),
+      new Vector3f(-0.5f, -0.5f, 0.0f) };
 
   int vaoId;
 
   public Display(final int width, final int height, final String title) {
-    setWidth(width);
-    setHeight(height);
-    setTitle(title);
+    SetWidth(width);
+    SetHeight(height);
+    SetTitle(title);
 
     GLFWErrorCallback.createPrint(System.err).set();
 
-    if (!glfwInit()) throw new IllegalStateException(
-      "Unable to initialize GLFW."
-    );
+    if (!glfwInit())
+      throw new IllegalStateException(
+          "Unable to initialize GLFW.");
 
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    frame = glfwCreateWindow(getWidth(), getHeight(), getTitle(), NULL, NULL);
-    if (frame == NULL) throw new RuntimeException(
-      "Failed to create the GLFW window."
-    );
+    frame = glfwCreateWindow(GetWidth(), GetHeight(), GetTitle(), NULL, NULL);
+    if (frame == NULL)
+      throw new RuntimeException(
+          "Failed to create the GLFW window.");
 
     glfwSetKeyCallback(
-      frame,
-      (window, key, scancode, action, mods) -> {
-        if (
-          key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE
-        ) glfwSetWindowShouldClose(window, true);
-      }
-    );
+        frame,
+        (window, key, scancode, action, mods) -> {
+          if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+            glfwSetWindowShouldClose(window, true);
+        });
 
     try (MemoryStack stack = stackPush()) {
       final IntBuffer pWidth = stack.mallocInt((int) 1);
@@ -102,10 +104,9 @@ public class Display {
       final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
       glfwSetWindowPos(
-        frame,
-        (vidmode.width() - pWidth.get(0)) / 2,
-        (vidmode.height() - pHeight.get(0)) / 2
-      );
+          frame,
+          (vidmode.width() - pWidth.get(0)) / 2,
+          (vidmode.height() - pHeight.get(0)) / 2);
     }
 
     glfwMakeContextCurrent(frame);
@@ -117,32 +118,32 @@ public class Display {
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
   }
 
-  public int getWidth() {
+  public int GetWidth() {
     return width;
   }
 
-  public void setWidth(final int width) {
+  public void SetWidth(final int width) {
     this.width = width;
   }
 
-  public int getHeight() {
+  public int GetHeight() {
     return height;
   }
 
-  public void setHeight(final int height) {
+  public void SetHeight(final int height) {
     this.height = height;
   }
 
-  public String getTitle() {
+  public String GetTitle() {
     return title;
   }
 
-  public void setTitle(final String title) {
+  public void SetTitle(final String title) {
     this.title = title;
   }
 
   public void Update() {
-    glViewport(0, 0, getWidth(), getHeight());
+    glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBindVertexArray(vaoId);
@@ -172,7 +173,7 @@ public class Display {
 
     glGenBuffers(vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBufferData(GL_ARRAY_BUFFER, points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, verts., GL_STATIC_DRAW);
 
     final IntBuffer vao = BufferUtils.createIntBuffer(1);
     glGenBuffers(vao);
