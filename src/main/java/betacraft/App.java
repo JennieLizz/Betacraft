@@ -1,6 +1,7 @@
 package betacraft;
 
 import betacraft.engine.Display;
+import betacraft.graphics.ShaderManager;
 import betacraft.utils.JLog;
 import org.lwjgl.Version;
 

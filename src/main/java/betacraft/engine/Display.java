@@ -48,22 +48,18 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-
-import betacraft.utils.JLog;
-import betacraft.utils.EMath;
 
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
+
+import betacraft.graphics.ShaderManager;
+import betacraft.utils.EMath;
+import betacraft.utils.JLog;
 
 public class Display {
   JLog jl = new JLog();
@@ -177,6 +173,8 @@ public class Display {
   public void Close() {
     glDeleteBuffers(m_vboId);
     glDeleteVertexArrays(m_vaoId);
+
+    ShaderManager.DeleteShaders();
 
     glfwFreeCallbacks(m_frame);
     glfwDestroyWindow(m_frame);
