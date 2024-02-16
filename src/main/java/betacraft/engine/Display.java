@@ -38,58 +38,74 @@ import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Vector;
+
+import betacraft.utils.JLog;
+import betacraft.utils.EMath;
 
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 public class Display {
+  JLog jl = new JLog();
 
-  private long frame;
-  private int width, height;
-  private String title;
+  long m_frame;
+  int m_width, m_height;
+  String m_title;
 
-  public Vector3f verts[] = { new Vector3f(0.0f, 0.5f, 0.0f),
+  public Vector3f verts[] = {
+      new Vector3f(0.0f, 0.5f, 0.0f),
       new Vector3f(0.5f, -0.5f, 0.0f),
-      new Vector3f(-0.5f, -0.5f, 0.0f) };
+      new Vector3f(-0.5f, -0.5f, 0.0f)
+  };
 
-  int vaoId;
+  int m_vaoId;
+  int m_vboId;
 
   public Display(final int width, final int height, final String title) {
     SetWidth(width);
     SetHeight(height);
     SetTitle(title);
 
+    jl.showTime = true;
+    jl.AllowSentFrom(this.getClass());
+
     GLFWErrorCallback.createPrint(System.err).set();
 
     if (!glfwInit())
-      throw new IllegalStateException(
-          "Unable to initialize GLFW.");
+      jl.Print("glfw failed to init!", JLog.TYPE.ERROR, false, new IllegalStateException(
+          "Unable to initialize GLFW."));
 
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    frame = glfwCreateWindow(GetWidth(), GetHeight(), GetTitle(), NULL, NULL);
-    if (frame == NULL)
-      throw new RuntimeException(
-          "Failed to create the GLFW window.");
+    m_frame = glfwCreateWindow(GetWidth(), GetHeight(), GetTitle(), NULL, NULL);
+    if (m_frame == NULL)
+      jl.Print("glfw failed to init!", JLog.TYPE.ERROR, false, new RuntimeException(
+          "Unable to initialize the GLFW Window."));
 
     glfwSetKeyCallback(
-        frame,
+        m_frame,
         (window, key, scancode, action, mods) -> {
           if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
             glfwSetWindowShouldClose(window, true);
@@ -99,19 +115,19 @@ public class Display {
       final IntBuffer pWidth = stack.mallocInt((int) 1);
       final IntBuffer pHeight = stack.mallocInt((int) 1);
 
-      glfwGetWindowSize(frame, pWidth, pHeight);
+      glfwGetWindowSize(m_frame, pWidth, pHeight);
 
       final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
       glfwSetWindowPos(
-          frame,
+          m_frame,
           (vidmode.width() - pWidth.get(0)) / 2,
           (vidmode.height() - pHeight.get(0)) / 2);
     }
 
-    glfwMakeContextCurrent(frame);
+    glfwMakeContextCurrent(m_frame);
     glfwSwapInterval(1);
-    glfwShowWindow(frame);
+    glfwShowWindow(m_frame);
 
     GL.createCapabilities();
 
@@ -119,47 +135,51 @@ public class Display {
   }
 
   public int GetWidth() {
-    return width;
+    return m_width;
   }
 
   public void SetWidth(final int width) {
-    this.width = width;
+    this.m_width = width;
   }
 
   public int GetHeight() {
-    return height;
+    return m_height;
   }
 
   public void SetHeight(final int height) {
-    this.height = height;
+    this.m_height = height;
   }
 
   public String GetTitle() {
-    return title;
+    return m_title;
   }
 
   public void SetTitle(final String title) {
-    this.title = title;
+    this.m_title = title;
   }
 
   public void Update() {
     glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindVertexArray(vaoId);
+    glBindVertexArray(m_vaoId);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 
-    glfwSwapBuffers(frame);
+    glfwSwapBuffers(m_frame);
     glfwPollEvents();
   }
 
   public boolean IsOpen() {
-    return !glfwWindowShouldClose(frame);
+    return !glfwWindowShouldClose(m_frame);
   }
 
   public void Close() {
-    glfwFreeCallbacks(frame);
-    glfwDestroyWindow(frame);
+    glDeleteBuffers(m_vboId);
+    glDeleteVertexArrays(m_vaoId);
+
+    glfwFreeCallbacks(m_frame);
+    glfwDestroyWindow(m_frame);
 
     glfwTerminate();
     glfwSetErrorCallback(null).free();
@@ -169,21 +189,21 @@ public class Display {
     final IntBuffer vbo = BufferUtils.createIntBuffer(1);
     glGenBuffers(vbo);
     vbo.rewind();
-    final int vboId = vbo.get();
+    m_vboId = vbo.get();
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 
-    glGenBuffers(vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vboId);
-    glBufferData(GL_ARRAY_BUFFER, verts., GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, EMath.Indices.ToFloatArray(verts), GL_STATIC_DRAW);
 
     final IntBuffer vao = BufferUtils.createIntBuffer(1);
-    glGenBuffers(vao);
-    vao.rewind();
-    vaoId = vao.get();
-
     glGenVertexArrays(vao);
-    glBindVertexArray(vaoId);
+    vao.rewind();
+    m_vaoId = vao.get();
+    glBindVertexArray(m_vaoId);
+
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
 }
