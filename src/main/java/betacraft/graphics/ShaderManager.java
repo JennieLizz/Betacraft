@@ -1,56 +1,52 @@
 package betacraft.graphics;
 
-import static org.lwjgl.opengl.GL20.glDeleteProgram;
-import static org.lwjgl.opengl.GL20.glDeleteShader;
-import static org.lwjgl.opengl.GL20.glDetachShader;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import betacraft.utils.JLog;
+
 public class ShaderManager {
-  static Map<String, Integer> m_vertex = new HashMap<>();
-  static Map<String, Integer> m_fragment = new HashMap<>();
-  static Map<String, Integer> m_program = new HashMap<>();
+  static Map<String, Shader> m_shaders = new HashMap<>();
 
-  static void AddShaderToManager(String name, int program, int vertex, int fragment) {
-    m_vertex.put(name, vertex);
-    m_fragment.put(name, fragment);
-    m_program.put(name, program);
+  public static void Render() {
+    m_shaders.entrySet().stream().forEach(entry -> {
+      entry.getValue().Use();
+    });
   }
 
-  static void RemoveShaderFromManager(String name) {
-    m_vertex.remove(name);
-    m_fragment.remove(name);
-    m_program.remove(name);
+  static void AddShaderToManager(Class<? extends Shader> shader) {
+    JLog jl = new JLog();
+    jl.showTime = true;
+
+    try {
+      Shader s = shader.getDeclaredConstructor().newInstance();
+      m_shaders.put(shader.getSimpleName(), s);
+    } catch (Exception e) {
+      jl.Print(e.getMessage(), JLog.TYPE.ERROR, false, e);
+    }
   }
 
-  public static int GetVertexShader(String name) {
-    return m_vertex.get(name);
+  static void RemoveShaderFromManager(Class<? extends Shader> shader) {
+    JLog jl = new JLog();
+    jl.showTime = true;
+
+    try {
+      Shader s = shader.getDeclaredConstructor().newInstance();
+      m_shaders.remove(shader.getSimpleName(), s);
+    } catch (Exception e) {
+      jl.Print(e.getMessage(), JLog.TYPE.ERROR, false, e);
+    }
   }
 
-  public static int GetFragmentShader(String name) {
-    return m_fragment.get(name);
-  }
-
-  public static int GetProgram(String name) {
-    return m_program.get(name);
+  public static Shader GetShader(String name) {
+    return m_shaders.get(name);
   }
 
   public static void DeleteShaders() {
-    m_vertex.entrySet().stream().forEach(entry -> {
-      glDetachShader(GetProgram(entry.getKey()), GetVertexShader(entry.getKey()));
-      glDeleteShader(GetVertexShader(entry.getKey()));
-    });
-    m_fragment.entrySet().stream().forEach(entry -> {
-      glDetachShader(GetProgram(entry.getKey()), GetFragmentShader(entry.getKey()));
-      glDeleteShader(GetFragmentShader(entry.getKey()));
-    });
-    m_program.entrySet().stream().forEach(entry -> {
-      glDeleteProgram(GetProgram(entry.getKey()));
+    m_shaders.entrySet().stream().forEach(entry -> {
+      entry.getValue().Delete();
     });
 
-    m_vertex.clear();
-    m_fragment.clear();
-    m_program.clear();
+    m_shaders.clear();
   }
 }

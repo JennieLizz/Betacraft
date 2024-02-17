@@ -20,6 +20,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
@@ -28,34 +29,16 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -72,11 +55,13 @@ public class Display {
   int m_width, m_height;
   String m_title;
 
+  long m_startTime = System.currentTimeMillis();
+
   float[] vertices = {
-      -0.5f, 0.5f, 0, // V0
-      -0.5f, -0.5f, 0, // V1
-      0.5f, -0.5f, 0, // V2
-      0.5f, 0.5f, 0 // V3
+      -1, 1, 0, // V0
+      -1, -1, 0, // V1
+      1, -1, 0, // V2
+      1, 1, 0 // V3
   };
 
   int[] indices = {
@@ -84,7 +69,6 @@ public class Display {
       3, 1, 2 // Bottom right triangle (V3,V1,V2)
   };
 
-  int m_vboID, m_vboID2, m_vaoID;
   Shader s;
 
   public Display(final int width, final int height, final String title) {
@@ -105,17 +89,20 @@ public class Display {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    m_frame = glfwCreateWindow(GetWidth(), GetHeight(), GetTitle(), NULL, NULL);
+    m_frame = glfwCreateWindow(m_width, m_height, m_title, NULL, NULL);
     if (m_frame == NULL)
       jl.Print("glfw failed to init!", JLog.TYPE.ERROR, false, new RuntimeException(
           "Unable to initialize the GLFW Window."));
 
-    glfwSetKeyCallback(
-        m_frame,
-        (window, key, scancode, action, mods) -> {
-          if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-            glfwSetWindowShouldClose(window, true);
-        });
+    glfwSetKeyCallback(m_frame, (window, key, scancode, action, mods) -> {
+      if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+        glfwSetWindowShouldClose(window, true);
+    });
+
+    glfwSetWindowSizeCallback(m_frame, (window, r_width, r_height) -> {
+      SetWidth(r_width);
+      SetHeight(r_height);
+    });
 
     try (MemoryStack stack = stackPush()) {
       final IntBuffer pWidth = stack.mallocInt((int) 1);
@@ -139,25 +126,8 @@ public class Display {
 
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
-    s = new Shader("test", "src/main/resources/shaders/Default.vert", "src/main/resources/shaders/Default.frag");
-
-    m_vaoID = glGenVertexArrays();
-    glBindVertexArray(m_vaoID);
-
-    m_vboID = glGenBuffers();
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-
-    FloatBuffer m_vert = StoreDataInFloatBuffer(vertices);
-    glBufferData(GL_ARRAY_BUFFER, m_vert, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    m_vboID2 = glGenBuffers();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboID2);
-    IntBuffer m_ind = StoreDataInIntBuffer(indices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ind, GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
+    s = new Shader("test", "src/main/resources/shaders/CoolColors/CoolColors.vert",
+        "src/main/resources/shaders/CoolColors/CoolColors.frag");
   }
 
   public int GetWidth() {
@@ -190,11 +160,8 @@ public class Display {
 
     s.Use();
 
-    glBindVertexArray(m_vaoID);
-    glEnableVertexAttribArray(0);
-    glDrawElements(GL_TRIANGLES, vertices.length, GL_UNSIGNED_INT, 0);
-    glDisableVertexAttribArray(0);
-    glBindVertexArray(0);
+    s.SetVector2f("u_Resolution", new Vector2f(GetWidth(), GetHeight()));
+    s.SetFloat("u_Time", (System.currentTimeMillis() - m_startTime) * 0.001f);
 
     glUseProgram(0);
 
@@ -207,10 +174,7 @@ public class Display {
   }
 
   public void Close() {
-    glDeleteBuffers(m_vboID);
-    glDeleteBuffers(m_vboID2);
-    glDeleteVertexArrays(m_vaoID);
-
+    ModelManager.DeleteModels();
     ShaderManager.DeleteShaders();
 
     glfwFreeCallbacks(m_frame);
@@ -218,19 +182,5 @@ public class Display {
 
     glfwTerminate();
     glfwSetErrorCallback(null).free();
-  }
-
-  private IntBuffer StoreDataInIntBuffer(int[] data) {
-    IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
-    buffer.put(data);
-    buffer.flip();
-    return buffer;
-  }
-
-  private FloatBuffer StoreDataInFloatBuffer(float[] data) {
-    FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
-    buffer.put(data);
-    buffer.flip();
-    return buffer;
   }
 }

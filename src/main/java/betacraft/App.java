@@ -13,7 +13,7 @@ public class App {
     jl.Print("Starting Engine...", JLog.TYPE.INFO, false, null);
 
     Display d = new Display(1280, 720, "Betacraft");
-    jl.Print("Display Setup - Complete...", JLog.TYPE.INFO, false, null);
+    jl.Print("Display Setup - Complete!", JLog.TYPE.INFO, false, null);
     while (d.IsOpen())
       d.Update();
 
