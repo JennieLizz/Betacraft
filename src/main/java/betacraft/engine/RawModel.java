@@ -24,16 +24,23 @@ import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
 
 public class RawModel extends ModelManager {
-  int m_vaoID, m_vboID, m_vboID2;
+  String m_shaderLayer = "Default";
+  String m_name;
+  int m_vaoID, m_vboID, m_eboID;
 
   float[] m_vertices = {};
-
   int[] m_indices = {};
 
   FloatBuffer m_vert;
   IntBuffer m_ind;
 
-  public RawModel() {
+  public RawModel(String name, float[] vertices, int[] indices) {
+    m_name = name;
+    m_vertices = vertices;
+    m_vert = StoreDataInFloatBuffer(vertices);
+    m_indices = indices;
+    m_ind = StoreDataInIntBuffer(indices);
+
     m_vaoID = glGenVertexArrays();
     glBindVertexArray(m_vaoID);
 
@@ -44,11 +51,13 @@ public class RawModel extends ModelManager {
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    m_vboID2 = glGenBuffers();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vboID2);
+    m_eboID = glGenBuffers();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ind, GL_STATIC_DRAW);
 
     glBindVertexArray(0);
+
+    super.AddModelToManager(this);
   }
 
   public void Bind() {
@@ -59,15 +68,25 @@ public class RawModel extends ModelManager {
     glBindVertexArray(0);
   }
 
+  public void SetLayer(String layer) {
+    super.SetModelLayer(m_shaderLayer, layer);
+    m_shaderLayer = layer;
+  }
+
+  public String GetLayer() {
+    return m_shaderLayer;
+  }
+
   public int GetVaoID() {
     return m_vaoID;
   }
 
-  public int GetVboID(boolean element) {
-    if (element)
-      return m_vboID2;
-    else
-      return m_vboID;
+  public int GetVboID() {
+    return m_vboID;
+  }
+
+  public int GetEboID() {
+    return m_eboID;
   }
 
   public void SetVertices(float[] vertices) {
@@ -96,7 +115,15 @@ public class RawModel extends ModelManager {
 
   public void Delete() {
     glDeleteBuffers(m_vboID);
-    glDeleteBuffers(m_vboID2);
+    glDeleteBuffers(m_eboID);
+    glDeleteVertexArrays(m_vaoID);
+
+    super.RemoveModelFromManager(this);
+  }
+
+  void SDelete() {
+    glDeleteBuffers(m_vboID);
+    glDeleteBuffers(m_eboID);
     glDeleteVertexArrays(m_vaoID);
   }
 }

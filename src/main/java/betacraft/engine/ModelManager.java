@@ -3,39 +3,42 @@ package betacraft.engine;
 import java.util.HashMap;
 import java.util.Map;
 
-import betacraft.utils.JLog;
+import betacraft.graphics.ShaderManager;
 
 public class ModelManager {
   static Map<String, RawModel> m_models = new HashMap<>();
 
   public static void Render() {
+    for (RawModel rm : m_models.values()) {
+      ShaderManager.ClearShaders();
+      ShaderManager.GetLayers().forEach(layer -> {
+        if (rm.GetLayer().equals(layer)) {
+          ShaderManager.GetShaders().forEach(shader -> {
+            if (shader.GetLayer().equals(layer)) {
+              shader.Use();
+            }
+          });
+        }
+      });
+
+      rm.Bind();
+    }
+  }
+
+  static void AddModelToManager(RawModel rModel) {
+    m_models.put(rModel.m_name, rModel);
+  }
+
+  static void RemoveModelFromManager(RawModel rModel) {
+    m_models.remove(rModel.m_name);
+  }
+
+  public static void SetModelLayer(String oLayer, String nLayer) {
     m_models.entrySet().stream().forEach(entry -> {
-      entry.getValue().Bind();
+      if (entry.getValue().GetLayer().equals(oLayer)) {
+        entry.getValue().SetLayer(nLayer);
+      }
     });
-  }
-
-  static void AddModelToManager(Class<? extends RawModel> rModel) {
-    JLog jl = new JLog();
-    jl.showTime = true;
-
-    try {
-      RawModel rm = rModel.getDeclaredConstructor().newInstance();
-      m_models.put(rModel.getSimpleName(), rm);
-    } catch (Exception e) {
-      jl.Print(e.getMessage(), JLog.TYPE.ERROR, false, e);
-    }
-  }
-
-  static void RemoveModelFromManager(Class<? extends RawModel> rModel) {
-    JLog jl = new JLog();
-    jl.showTime = true;
-
-    try {
-      RawModel rm = rModel.getDeclaredConstructor().newInstance();
-      m_models.remove(rModel.getSimpleName(), rm);
-    } catch (Exception e) {
-      jl.Print(e.getMessage(), JLog.TYPE.ERROR, false, e);
-    }
   }
 
   public static RawModel GetModel(String name) {
@@ -44,7 +47,7 @@ public class ModelManager {
 
   public static void DeleteModels() {
     m_models.entrySet().stream().forEach(entry -> {
-      entry.getValue().Delete();
+      entry.getValue().SDelete();
     });
 
     m_models.clear();

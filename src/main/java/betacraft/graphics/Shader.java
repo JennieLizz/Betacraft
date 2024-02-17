@@ -34,6 +34,7 @@ import org.joml.Vector3f;
 import betacraft.utils.JLog;
 
 public class Shader extends ShaderManager {
+  String m_shaderLayer = "Default";
   String m_name;
   int m_program;
   int m_vertexShader;
@@ -69,9 +70,19 @@ public class Shader extends ShaderManager {
 
     jl.Print("Compiled and linked!", JLog.TYPE.INFO, false, null);
 
-    super.AddShaderToManager(this.getClass());
+    super.AddShaderToManager(this);
 
     jl.Print("Shader Creation Complete!", JLog.TYPE.INFO, false, null);
+  }
+
+  public void SetLayer(String layer) {
+    if (layer.length() > 1) {
+      m_shaderLayer = layer;
+    }
+  }
+
+  public String GetLayer() {
+    return m_shaderLayer;
   }
 
   public void SetInt(String name, int value) {
@@ -94,17 +105,7 @@ public class Shader extends ShaderManager {
     glUseProgram(m_program);
   }
 
-  public void Delete() {
-    glDetachShader(m_program, m_vertexShader);
-    glDetachShader(m_program, m_fragmentShader);
-    glDeleteShader(m_vertexShader);
-    glDeleteShader(m_fragmentShader);
-    glDeleteProgram(m_program);
-
-    super.RemoveShaderFromManager(this.getClass());
-  }
-
-  private static int LoadShader(String file, int type) {
+  private int LoadShader(String file, int type) {
     JLog jl = new JLog();
     jl.showTime = true;
 
@@ -128,5 +129,23 @@ public class Shader extends ShaderManager {
           glGetShaderInfoLog(shaderID, 500)));
     }
     return shaderID;
+  }
+
+  public void Delete() {
+    glDetachShader(m_program, m_vertexShader);
+    glDetachShader(m_program, m_fragmentShader);
+    glDeleteShader(m_vertexShader);
+    glDeleteShader(m_fragmentShader);
+    glDeleteProgram(m_program);
+
+    super.RemoveShaderFromManager(this);
+  }
+
+  void SDelete() {
+    glDetachShader(m_program, m_vertexShader);
+    glDetachShader(m_program, m_fragmentShader);
+    glDeleteShader(m_vertexShader);
+    glDeleteShader(m_fragmentShader);
+    glDeleteProgram(m_program);
   }
 }

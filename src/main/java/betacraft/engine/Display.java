@@ -32,7 +32,6 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -126,6 +125,8 @@ public class Display {
 
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
+
+    new RawModel("test2", vertices, indices);
     s = new Shader("test", "src/main/resources/shaders/CoolColors/CoolColors.vert",
         "src/main/resources/shaders/CoolColors/CoolColors.frag");
   }
@@ -158,12 +159,10 @@ public class Display {
     glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    s.Use();
-
     s.SetVector2f("u_Resolution", new Vector2f(GetWidth(), GetHeight()));
     s.SetFloat("u_Time", (System.currentTimeMillis() - m_startTime) * 0.001f);
 
-    glUseProgram(0);
+    ModelManager.Render();
 
     glfwSwapBuffers(m_frame);
     glfwPollEvents();
