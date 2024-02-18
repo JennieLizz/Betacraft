@@ -262,10 +262,9 @@ void main()
 	vec2 q = fragCoord.xy / iResolution.xy;
     vec2 p = -1.0 + 2.0 * q;
     p.x *= iResolution.x/iResolution.y;
-	if(abs(p.y)-0.85>0.) { fragColor.xyz=vec3(0); return; }
     
     vec3 lookat=vec3(0.0, 0., 0.0);
-	vec3 ro=vec3(0., .8,-2.5);
+	  vec3 ro=vec3(iTime*2, .8,-2.5);
     ro.xy+=vec2(0.04,0.01)*noise(iTime*0.5).xy;
     
     vec3 forward=normalize(lookat-ro);
@@ -283,7 +282,7 @@ void main()
     col=tonemap(col);
     col=pow(clamp(col,0.0,1.0),vec3(0.45));
     col=col*0.6+0.4*col*col*(3.0-2.0*col);
-    //col=pow(col,vec3(0.85,0.9,1.));
-    col*=pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.2);
+    col=pow(col,vec3(0.85,0.9,1.));
+    //col*=pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.2);
     fragColor.xyz=col;
 }

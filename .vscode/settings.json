@@ -1,10 +1,9 @@
 {
     "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "c:\\Users\\jenni\\OneDrive\\Desktop\\Betacraft-WP\\JLog.jar"
+        "lib/**/*.jar"
     ],
     "java.configuration.updateBuildConfiguration": "automatic",
     "cSpell.words": [
-        "betacraft"
+        "jlengine"
     ]
 }

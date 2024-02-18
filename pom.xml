@@ -13,6 +13,7 @@
 
 	<properties>
 		<lwjgl.version>3.3.3</lwjgl.version>
+		<imgui.java.version>1.81.0</imgui.java.version>
 		<joml.version>1.10.5</joml.version>
 		<lwjgl.natives>natives-windows</lwjgl.natives>
 		
@@ -33,11 +34,6 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.22.1</version>
-		</dependency>
 		<dependency>
 			<groupId>org.lwjgl</groupId>
 			<artifactId>lwjgl</artifactId>
@@ -421,6 +417,22 @@
 			<groupId>org.joml</groupId>
 			<artifactId>joml</artifactId>
 			<version>${joml.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.spair</groupId>
+			<artifactId>imgui-java-binding</artifactId>
+			<version>${imgui.java.version}</version>
+		</dependency>
+		<dependency>
+				<groupId>io.github.spair</groupId>
+				<artifactId>imgui-java-lwjgl3</artifactId>
+				<version>${imgui.java.version}</version>
+		</dependency>
+		<dependency>
+				<groupId>io.github.spair</groupId>
+				<artifactId>imgui-java-natives-windows</artifactId>
+				<version>${imgui.java.version}</version>
 		</dependency>
 	</dependencies>
 </project>

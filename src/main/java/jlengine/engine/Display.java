@@ -37,7 +37,6 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.IntBuffer;
 
-import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -67,8 +66,6 @@ public class Display {
       0, 1, 3, // Top left triangle (V0,V1,V3)
       3, 1, 2 // Bottom right triangle (V3,V1,V2)
   };
-
-  Shader s;
 
   public Display(final int width, final int height, final String title) {
     SetWidth(width);
@@ -118,7 +115,7 @@ public class Display {
     }
 
     glfwMakeContextCurrent(m_frame);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
     glfwShowWindow(m_frame);
 
     GL.createCapabilities();
@@ -127,7 +124,7 @@ public class Display {
 
 
     new RawModel("test2", vertices, indices);
-    s = new Shader("test", "src\\main\\resources\\shaders\\Raymarchingtest\\Raymarchingtest.vert",
+    new Shader("test", "src\\main\\resources\\shaders\\Raymarchingtest\\Raymarchingtest.vert",
         "src\\main\\resources\\shaders\\Raymarchingtest\\Raymarchingtest.frag");
   }
 
@@ -155,21 +152,26 @@ public class Display {
     this.m_title = title;
   }
 
-  public void Update() {
+  public long GetFrame() {
+    return m_frame;
+  }
+
+  public float GetStartTime() {
+    return m_startTime;
+  }
+
+  public boolean IsOpen() {
+    return !glfwWindowShouldClose(m_frame);
+  }
+
+  void Update() {
     glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    s.SetVector2f("iResolution", new Vector2f(GetWidth(), GetHeight()));
-    s.SetFloat("iTime", (System.currentTimeMillis() - m_startTime) * 0.001f);
 
     ModelManager.Render();
 
     glfwSwapBuffers(m_frame);
     glfwPollEvents();
-  }
-
-  public boolean IsOpen() {
-    return !glfwWindowShouldClose(m_frame);
   }
 
   public void Close() {
