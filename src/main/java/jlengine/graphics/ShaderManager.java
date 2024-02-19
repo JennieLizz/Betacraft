@@ -1,17 +1,17 @@
 package jlengine.graphics;
 
-import static org.lwjgl.opengl.GL20.glUseProgram;
+import jlengine.utils.JLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jlengine.utils.JLog;
+import static org.lwjgl.opengl.GL20.glUseProgram;
 
 public class ShaderManager {
-  static List<String> m_layers = new ArrayList<>(List.of("Default"));
-  static Map<String, Shader> m_shaders = new HashMap<>();
+  static final List<String> m_layers = new ArrayList<>(List.of("Default"));
+  static final Map<String, Shader> m_shaders = new HashMap<>();
 
   public static void ClearShaders() {
     glUseProgram(0);
@@ -87,9 +87,7 @@ public class ShaderManager {
   }
 
   public static void DeleteShaders() {
-    m_shaders.entrySet().stream().forEach(entry -> {
-      entry.getValue().SDelete();
-    });
+    m_shaders.forEach((key, value) -> value.SDelete());
 
     m_shaders.clear();
   }

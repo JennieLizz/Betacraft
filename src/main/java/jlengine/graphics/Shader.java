@@ -1,37 +1,16 @@
 package jlengine.graphics;
 
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glDeleteProgram;
-import static org.lwjgl.opengl.GL20.glDeleteShader;
-import static org.lwjgl.opengl.GL20.glDetachShader;
-import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniform2f;
-import static org.lwjgl.opengl.GL20.glUniform3f;
-import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glValidateProgram;
+import jlengine.utils.JLog;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-
-import jlengine.utils.JLog;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.opengl.GL20.*;
 
 public class Shader extends ShaderManager {
   String m_shaderLayer = "Default";
@@ -70,7 +49,7 @@ public class Shader extends ShaderManager {
 
     jl.Print("Compiled and linked!", JLog.TYPE.INFO, false, null);
 
-    super.AddShaderToManager(this);
+    AddShaderToManager(this);
 
     jl.Print("Shader Creation Complete!", JLog.TYPE.INFO, false, null);
   }
@@ -138,7 +117,7 @@ public class Shader extends ShaderManager {
     glDeleteShader(m_fragmentShader);
     glDeleteProgram(m_program);
 
-    super.RemoveShaderFromManager(this);
+    RemoveShaderFromManager(this);
   }
 
   void SDelete() {

@@ -1,34 +1,23 @@
 package jlengine.engine;
 
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
 
 public class RawModel extends ModelManager {
   String m_shaderLayer = "Default";
-  String m_name;
-  int m_vaoID, m_vboID, m_eboID;
+  final String m_name;
+  final int m_vaoID;
+    final int m_vboID;
+    final int m_eboID;
 
-  float[] m_vertices = {};
+  float[] m_vertices;
   int[] m_indices = {};
 
   FloatBuffer m_vert;
@@ -57,7 +46,7 @@ public class RawModel extends ModelManager {
 
     glBindVertexArray(0);
 
-    super.AddModelToManager(this);
+    AddModelToManager(this);
   }
 
   public void Bind() {
@@ -69,7 +58,7 @@ public class RawModel extends ModelManager {
   }
 
   public void SetLayer(String layer) {
-    super.SetModelLayer(m_shaderLayer, layer);
+    SetModelLayer(m_shaderLayer, layer);
     m_shaderLayer = layer;
   }
 
@@ -118,7 +107,7 @@ public class RawModel extends ModelManager {
     glDeleteBuffers(m_eboID);
     glDeleteVertexArrays(m_vaoID);
 
-    super.RemoveModelFromManager(this);
+    RemoveModelFromManager(this);
   }
 
   void SDelete() {

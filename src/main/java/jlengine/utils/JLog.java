@@ -32,7 +32,7 @@ public class JLog {
    */
 
   static boolean m_logsDisabled;
-  static long m_StartTime = System.currentTimeMillis();
+  static final long m_StartTime = System.currentTimeMillis();
   public boolean showTime;
   Class<?> m_sf;
   String m_ssf;
@@ -40,7 +40,7 @@ public class JLog {
   /**
    * Allows you to change the color of the string.
    * (Can be used multiple times in a string)
-   * 
+   * <p>
    * Ex. String ex = COLORS.ANSI_RED + "Red" + COLORS.ANSI_BLUE + "Blue";
    *
    */
@@ -68,11 +68,10 @@ public class JLog {
   /**
    * Prints to the Console.
    *
-   * @param text       - The text to output.
+   * @param out       - The object to output.
    * @param type       - Type of output. (INFO, WARNING, ERROR)
    * @param fDisableSf - Disables the output of the sender Class name. (Only works
    *                   when GiveSentFrom() has been called with the parent Class)
-   * @return None
    */
   public void Print(Object out, TYPE type, boolean fDisableSf, Throwable e) {
     String m_r = COLORS.ANSI_RESET;
@@ -154,7 +153,7 @@ public class JLog {
   /**
    * Allows the parent Class to be used in the log.
    * 
-   * @param sf
+   * @param sf - Shows the class the print was from.
    */
   public void AllowSentFrom(Class<?> sf) {
     m_sf = sf;

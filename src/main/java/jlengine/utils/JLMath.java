@@ -2,9 +2,9 @@ package jlengine.utils;
 
 import org.joml.Vector3f;
 
-public class EMath {
-  public class Vertices {
-    public static float[] ToFloatArray(Vector3f vectors[]) {
+public class JLMath {
+  public static class Vertices {
+    public static float[] ToFloatArray(Vector3f[] vectors) {
       float[] floats = new float[vectors.length * 3];
 
       for (int i = 0; i < vectors.length; i++) {

@@ -1,71 +1,32 @@
 package jlengine.engine;
 
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
-import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
-
-import java.nio.IntBuffer;
-
+import imgui.ImGui;
+import jlengine.graphics.ShaderManager;
+import jlengine.gui.imgui.JLImGui;
+import jlengine.utils.JLog;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import jlengine.graphics.Shader;
-import jlengine.graphics.ShaderManager;
-import jlengine.utils.JLog;
+import java.nio.IntBuffer;
+import java.util.Objects;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Display {
-  JLog jl = new JLog();
+  final JLog jl = new JLog();
 
-  long m_frame;
+  final long m_frame;
   int m_width, m_height;
   String m_title;
 
-  long m_startTime = System.currentTimeMillis();
+  JLImGui gui;
 
-  float[] vertices = {
-      -1, 1, 0, // V0
-      -1, -1, 0, // V1
-      1, -1, 0, // V2
-      1, 1, 0 // V3
-  };
-
-  int[] indices = {
-      0, 1, 3, // Top left triangle (V0,V1,V3)
-      3, 1, 2 // Bottom right triangle (V3,V1,V2)
-  };
 
   public Display(final int width, final int height, final String title) {
     SetWidth(width);
@@ -95,23 +56,26 @@ public class Display {
         glfwSetWindowShouldClose(window, true);
     });
 
+    //noinspection resource
     glfwSetWindowSizeCallback(m_frame, (window, r_width, r_height) -> {
       SetWidth(r_width);
       SetHeight(r_height);
     });
 
     try (MemoryStack stack = stackPush()) {
-      final IntBuffer pWidth = stack.mallocInt((int) 1);
-      final IntBuffer pHeight = stack.mallocInt((int) 1);
+      final IntBuffer pWidth = stack.mallocInt(1);
+      final IntBuffer pHeight = stack.mallocInt(1);
 
       glfwGetWindowSize(m_frame, pWidth, pHeight);
 
       final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-      glfwSetWindowPos(
+        assert vidmode != null;
+        glfwSetWindowPos(
           m_frame,
           (vidmode.width() - pWidth.get(0)) / 2,
-          (vidmode.height() - pHeight.get(0)) / 2);
+          (vidmode.height() - pHeight.get(0)) / 2
+      );
     }
 
     glfwMakeContextCurrent(m_frame);
@@ -122,10 +86,8 @@ public class Display {
 
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
 
-
-    new RawModel("test2", vertices, indices);
-    new Shader("test", "src\\main\\resources\\shaders\\Raymarchingtest\\Raymarchingtest.vert",
-        "src\\main\\resources\\shaders\\Raymarchingtest\\Raymarchingtest.frag");
+    gui = new JLImGui();
+    gui.Init(this);
   }
 
   public int GetWidth() {
@@ -156,25 +118,35 @@ public class Display {
     return m_frame;
   }
 
-  public float GetStartTime() {
-    return m_startTime;
-  }
-
   public boolean IsOpen() {
     return !glfwWindowShouldClose(m_frame);
   }
 
-  void Update() {
+  void Update(Game game) {
     glViewport(0, 0, GetWidth(), GetHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    game.Update();
+
     ModelManager.Render();
+
+    gui.sFrame();
+
+    ImGui.begin("Bruh");
+
+    ImGui.text("HELLOOO");
+
+    ImGui.end();
+
+    gui.eFrame();
 
     glfwSwapBuffers(m_frame);
     glfwPollEvents();
   }
 
   public void Close() {
+    gui.Close();
+
     ModelManager.DeleteModels();
     ShaderManager.DeleteShaders();
 
@@ -182,6 +154,6 @@ public class Display {
     glfwDestroyWindow(m_frame);
 
     glfwTerminate();
-    glfwSetErrorCallback(null).free();
+    Objects.requireNonNull(glfwSetErrorCallback(null)).free();
   }
 }

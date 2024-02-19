@@ -1,12 +1,12 @@
 package jlengine.engine;
 
+import jlengine.graphics.ShaderManager;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import jlengine.graphics.ShaderManager;
-
 public class ModelManager {
-  static Map<String, RawModel> m_models = new HashMap<>();
+  static final Map<String, RawModel> m_models = new HashMap<>();
 
   public static void Render() {
     for (RawModel rm : m_models.values()) {
@@ -34,10 +34,10 @@ public class ModelManager {
   }
 
   public static void SetModelLayer(String oLayer, String nLayer) {
-    m_models.entrySet().stream().forEach(entry -> {
-      if (entry.getValue().GetLayer().equals(oLayer)) {
-        entry.getValue().SetLayer(nLayer);
-      }
+    m_models.forEach((key, value) -> {
+        if (value.GetLayer().equals(oLayer)) {
+            value.SetLayer(nLayer);
+        }
     });
   }
 
@@ -46,9 +46,7 @@ public class ModelManager {
   }
 
   public static void DeleteModels() {
-    m_models.entrySet().stream().forEach(entry -> {
-      entry.getValue().SDelete();
-    });
+    m_models.forEach((key, value) -> value.SDelete());
 
     m_models.clear();
   }
