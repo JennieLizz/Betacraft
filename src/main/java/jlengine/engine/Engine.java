@@ -1,28 +1,33 @@
 package jlengine.engine;
 
-import jlengine.App;
+import jllauncher.App;
+
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
 public class Engine {
-  final Game m_game;
-  final Display m_display;
+    static final long m_startTime = System.currentTimeMillis();
+    static Game m_game;
+    static Display m_display;
 
-  static final long m_startTime = System.currentTimeMillis();
+    public Engine(Display display) {
+        m_display = display;
+        m_game = new App();
 
-  public Engine(Display display) {
-    m_display = display;
-    m_game = new App();
+        m_game.Init();
 
-    m_game.Init();
+        while (m_display.IsOpen()) {
+            m_display.Update(m_game);
+        }
 
-    while (m_display.IsOpen()) {
-      m_display.Update(m_game);
+        m_game.Close();
+        m_display.Close();
     }
 
-    m_game.Close();
-    m_display.Close();
-  }
+    public static void Close() {
+        glfwSetWindowShouldClose(m_display.GetFrame(), true);
+    }
 
-  public static long GetStartTime() {
-      return m_startTime;
-  }
+    public static long GetStartTime() {
+        return m_startTime;
+    }
 }

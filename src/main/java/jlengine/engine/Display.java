@@ -1,9 +1,10 @@
 package jlengine.engine;
 
-import imgui.ImGui;
+import jleditor.gui.imgui.JLImGui;
+import jlengine.graphics.RenderManager;
 import jlengine.graphics.ShaderManager;
-import jlengine.gui.imgui.JLImGui;
-import jlengine.utils.JLog;
+import jlengine.model.ModelManager;
+import jlengine.utils.JLLog;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -19,141 +20,162 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Display {
-  final JLog jl = new JLog();
+    final JLLog jl = new JLLog();
 
-  final long m_frame;
-  int m_width, m_height;
-  String m_title;
+    final long m_frame;
+    int m_width, m_height;
+    String m_title;
 
-  JLImGui gui;
+    JLImGui gui;
 
+    boolean m_editor;
 
-  public Display(final int width, final int height, final String title) {
-    SetWidth(width);
-    SetHeight(height);
-    SetTitle(title);
+    public Display(final int width, final int height, final String title, String[] args) {
+        SetWidth(width);
+        SetHeight(height);
+        SetTitle(title);
 
-    jl.showTime = true;
-    jl.AllowSentFrom(this.getClass());
+        jl.showTime = true;
+        jl.AllowSentFrom(this.getClass());
 
-    GLFWErrorCallback.createPrint(System.err).set();
+        if (Objects.equals(args[0], "editor")) {
+            m_editor = true;
+        }
 
-    if (!glfwInit())
-      jl.Print("glfw failed to init!", JLog.TYPE.ERROR, false, new IllegalStateException(
-          "Unable to initialize GLFW."));
+        GLFWErrorCallback.createPrint(System.err).set();
 
-    glfwDefaultWindowHints();
-    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        if (!glfwInit())
+            jl.Print("glfw failed to init!", JLLog.TYPE.ERROR, false, new IllegalStateException(
+                    "Unable to initialize GLFW."));
 
-    m_frame = glfwCreateWindow(m_width, m_height, m_title, NULL, NULL);
-    if (m_frame == NULL)
-      jl.Print("glfw failed to init!", JLog.TYPE.ERROR, false, new RuntimeException(
-          "Unable to initialize the GLFW Window."));
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    glfwSetKeyCallback(m_frame, (window, key, scancode, action, mods) -> {
-      if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
-        glfwSetWindowShouldClose(window, true);
-    });
+        m_frame = glfwCreateWindow(m_width, m_height, m_title, NULL, NULL);
+        if (m_frame == NULL)
+            jl.Print("glfw failed to init!", JLLog.TYPE.ERROR, false, new RuntimeException(
+                    "Unable to initialize the GLFW Window."));
 
-    //noinspection resource
-    glfwSetWindowSizeCallback(m_frame, (window, r_width, r_height) -> {
-      SetWidth(r_width);
-      SetHeight(r_height);
-    });
+        glfwSetKeyCallback(m_frame, (window, key, scancode, action, mods) -> {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+                glfwSetWindowShouldClose(window, true);
+        });
 
-    try (MemoryStack stack = stackPush()) {
-      final IntBuffer pWidth = stack.mallocInt(1);
-      final IntBuffer pHeight = stack.mallocInt(1);
+        try {
+            glfwSetWindowSizeCallback(m_frame, (window, r_width, r_height) -> {
+                SetWidth(r_width);
+                SetHeight(r_height);
 
-      glfwGetWindowSize(m_frame, pWidth, pHeight);
+                glfwSwapBuffers(m_frame);
 
-      final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                if (!m_editor)
+                    glViewport(0, 0, r_width, r_height);
+            });
+        } catch (NullPointerException e) {
+            jl.Print("Failed to set window size callback!", JLLog.TYPE.ERROR, false, e);
+        }
 
-        assert vidmode != null;
-        glfwSetWindowPos(
-          m_frame,
-          (vidmode.width() - pWidth.get(0)) / 2,
-          (vidmode.height() - pHeight.get(0)) / 2
-      );
+        try (MemoryStack stack = stackPush()) {
+            final IntBuffer pWidth = stack.mallocInt(1);
+            final IntBuffer pHeight = stack.mallocInt(1);
+
+            glfwGetWindowSize(m_frame, pWidth, pHeight);
+
+            final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+            assert vidmode != null;
+            glfwSetWindowPos(
+                    m_frame,
+                    (vidmode.width() - pWidth.get(0)) / 2,
+                    (vidmode.height() - pHeight.get(0)) / 2
+            );
+        }
+
+        glfwMakeContextCurrent(m_frame);
+        glfwSwapInterval(0);
+        glfwShowWindow(m_frame);
+
+        GL.createCapabilities();
+
+        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+
+        gui = new JLImGui();
+        gui.Init(this);
     }
 
-    glfwMakeContextCurrent(m_frame);
-    glfwSwapInterval(0);
-    glfwShowWindow(m_frame);
+    public int GetWidth() {
+        return m_width;
+    }
 
-    GL.createCapabilities();
+    public void SetWidth(final int width) {
+        this.m_width = width;
+    }
 
-    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    public int GetHeight() {
+        return m_height;
+    }
 
-    gui = new JLImGui();
-    gui.Init(this);
-  }
+    public void SetHeight(final int height) {
+        this.m_height = height;
+    }
 
-  public int GetWidth() {
-    return m_width;
-  }
+    public String GetTitle() {
+        return m_title;
+    }
 
-  public void SetWidth(final int width) {
-    this.m_width = width;
-  }
+    public void SetTitle(final String title) {
+        this.m_title = title;
+    }
 
-  public int GetHeight() {
-    return m_height;
-  }
+    public long GetFrame() {
+        return m_frame;
+    }
 
-  public void SetHeight(final int height) {
-    this.m_height = height;
-  }
+    public boolean IsOpen() {
+        return !glfwWindowShouldClose(m_frame);
+    }
 
-  public String GetTitle() {
-    return m_title;
-  }
+    public boolean IsEditor() {
+        return m_editor;
+    }
 
-  public void SetTitle(final String title) {
-    this.m_title = title;
-  }
+    void Update(Game game) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  public long GetFrame() {
-    return m_frame;
-  }
+        game.Update();
 
-  public boolean IsOpen() {
-    return !glfwWindowShouldClose(m_frame);
-  }
+        RenderManager.FrameBuffer.BindFrameBuffer();
 
-  void Update(Game game) {
-    glViewport(0, 0, GetWidth(), GetHeight());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (m_editor) {
+            RenderManager.cWidth = gui.GetSceneWidth();
+            RenderManager.cHeight = gui.GetSceneHeight();
+        }
 
-    game.Update();
+        RenderManager.Render(this);
 
-    ModelManager.Render();
+        RenderManager.FrameBuffer.UnbindFrameBuffer();
 
-    gui.sFrame();
+        gui.sFrame();
+        gui.Update();
+        gui.eFrame();
 
-    ImGui.begin("Bruh");
+        glfwSwapBuffers(m_frame);
+        glfwPollEvents();
+    }
 
-    ImGui.text("HELLOOO");
+    public void Close() {
+        gui.Close();
 
-    ImGui.end();
+        RenderManager.FrameBuffer.DeleteFrameBuffer();
 
-    gui.eFrame();
+        ModelManager.DeleteModels();
+        ShaderManager.DeleteShaders();
 
-    glfwSwapBuffers(m_frame);
-    glfwPollEvents();
-  }
+        glfwFreeCallbacks(m_frame);
+        glfwDestroyWindow(m_frame);
 
-  public void Close() {
-    gui.Close();
-
-    ModelManager.DeleteModels();
-    ShaderManager.DeleteShaders();
-
-    glfwFreeCallbacks(m_frame);
-    glfwDestroyWindow(m_frame);
-
-    glfwTerminate();
-    Objects.requireNonNull(glfwSetErrorCallback(null)).free();
-  }
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+    }
 }

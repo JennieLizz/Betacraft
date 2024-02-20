@@ -1,4 +1,4 @@
-package jlengine.components.meshes;
+package jlengine.components;
 
 public interface JLComponentBase {
     void Init();

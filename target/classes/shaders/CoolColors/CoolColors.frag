@@ -2,8 +2,8 @@
 
 out vec4 fragColor;
 
-uniform vec2 u_Resolution;
-uniform float u_Time;
+uniform vec2 iResolution;
+uniform float iTime;
 
 vec3 palette(float t) {
     vec3 a = vec3(0.5, 0.5, 0.5);
@@ -15,7 +15,7 @@ vec3 palette(float t) {
 }
 
 void main() {
-    vec2 uv = (gl_FragCoord.xy * 2.0 - u_Resolution) / u_Resolution.y;
+    vec2 uv = (gl_FragCoord.xy * 2.0 - iResolution) / iResolution.y;
     vec2 uv0 = uv;
     vec3 finalColor = vec3(0.0);
     
@@ -24,9 +24,9 @@ void main() {
 
         float d = length(uv) * exp(-length(uv0));
 
-        vec3 col = palette(length(uv0) + i*.4 + u_Time*.4);
+        vec3 col = palette(length(uv0) + i*.4 + iTime*.4);
 
-        d = sin(d*8. + u_Time)/8.;
+        d = sin(d*8. + iTime)/8.;
         d = abs(d);
 
         d = pow(0.01 / d, 1.2);

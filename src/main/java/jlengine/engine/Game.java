@@ -1,15 +1,15 @@
 package jlengine.engine;
 
 public interface Game {
-  default void Init() {
+    default void Init() {
 
-  }
+    }
 
-  default void Update() {
+    default void Update() {
 
-  }
+    }
 
-  default void Close() {
+    default void Close() {
 
-  }
+    }
 }
