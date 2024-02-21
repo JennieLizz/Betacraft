@@ -6,9 +6,9 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Objects;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
@@ -24,12 +24,6 @@ public class Shader extends ShaderManager {
         JLLog jl = new JLLog();
         jl.showTime = true;
         jl.AllowSentFrom(this.getClass());
-
-        if (!new File(vertexPath).exists() || !new File(fragmentPath).exists()) {
-            jl.Print("Shader: " + name + " does not exist!", JLLog.TYPE.ERROR, false, new Exception(
-                    "Shader: " + name + " does not exist!"));
-            return;
-        }
 
         m_name = name;
         m_vertexShader = LoadShader(vertexPath, GL_VERTEX_SHADER);
@@ -86,7 +80,7 @@ public class Shader extends ShaderManager {
 
         StringBuilder shaderSource = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(Shader.class.getClassLoader().getResourceAsStream(file))));
             String line;
             while ((line = reader.readLine()) != null) {
                 shaderSource.append(line).append("//\n");

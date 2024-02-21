@@ -78,13 +78,13 @@ public class RawModel extends ModelManager {
     }
 
     public void SetVertices(float[] vertices) {
-        this.m_vertices = vertices;
-        this.m_vert = StoreDataInFloatBuffer(vertices);
+        m_vertices = vertices;
+        m_vert = StoreDataInFloatBuffer(vertices);
     }
 
     public void SetIndices(int[] indices) {
-        this.m_indices = indices;
-        this.m_ind = StoreDataInIntBuffer(indices);
+        m_indices = indices;
+        m_ind = StoreDataInIntBuffer(indices);
     }
 
     private FloatBuffer StoreDataInFloatBuffer(float[] data) {

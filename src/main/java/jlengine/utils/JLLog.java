@@ -39,7 +39,7 @@ public class JLLog {
     Class<?> m_sf;
     String m_ssf;
 
-    public static String getStackTraceString(Throwable e) {
+    public static String GetStackTraceString(Throwable e) {
         StringBuilder sb = new StringBuilder();
         sb.append(e.toString());
         sb.append("\n");
@@ -60,7 +60,7 @@ public class JLLog {
         if (cause != null) {
             sb.append(indent);
             sb.append("Caused by: ");
-            sb.append(getStackTraceString(cause));
+            sb.append(GetStackTraceString(cause));
         }
 
         return sb.toString();
@@ -78,39 +78,49 @@ public class JLLog {
         m_logsDisabled = !m_logsDisabled;
     }
 
+    public static void SFPrint(Object out) {
+        String r = COLORS.ANSI_RESET;
+
+        long m_elapsedTime = System.currentTimeMillis() - m_StartTime;
+
+        System.out.println(r + "@" + Start + "INFO" + " +@ " + m_elapsedTime);
+        System.out.println(out);
+        System.out.println(r + End);
+    }
+
     /**
      * Prints to the Console.
      *
-     * @param out        - The object to output.
-     * @param type       - Type of output. (INFO, WARNING, ERROR)
-     * @param fDisableSf - Disables the output of the sender Class name. (Only works
+     * @param out        The object to output.
+     * @param type       Type of output. (INFO, WARNING, ERROR)
+     * @param fDisableSf Disables the output of the sender Class name. (Only works
      *                   when GiveSentFrom() has been called with the parent Class)
      */
     public void Print(Object out, TYPE type, boolean fDisableSf, Throwable e) {
-        String m_r = COLORS.ANSI_RESET;
-        String m_w = COLORS.ANSI_YELLOW;
-        String m_e = COLORS.ANSI_RED;
+        String r = COLORS.ANSI_RESET;
+        String yc = COLORS.ANSI_YELLOW;
+        String rc = COLORS.ANSI_RED;
 
         long m_elapsedTime = System.currentTimeMillis() - m_StartTime;
 
         switch (type) {
             case INFO:
                 if (showTime)
-                    System.out.println(m_r + "@" + Start + "INFO" + " +@ " + m_elapsedTime);
+                    System.out.println(r + "@" + Start + "INFO" + " +@ " + m_elapsedTime);
                 else
-                    System.out.println(m_r + "@" + Start + "INFO");
+                    System.out.println(r + "@" + Start + "INFO");
                 break;
             case WARNING:
                 if (showTime)
-                    System.out.println(m_r + m_w + "^" + Start + "WARNING" + " +@ " + m_elapsedTime);
+                    System.out.println(r + yc + "^" + Start + "WARNING" + " +@ " + m_elapsedTime);
                 else
-                    System.out.println(m_r + m_w + "^" + Start + "WARNING");
+                    System.out.println(r + yc + "^" + Start + "WARNING");
                 break;
             case ERROR:
                 if (showTime)
-                    System.out.println(m_r + m_e + "!" + Start + "ERROR" + " +@ " + m_elapsedTime);
+                    System.out.println(r + rc + "!" + Start + "ERROR" + " +@ " + m_elapsedTime);
                 else
-                    System.out.println(m_r + m_e + "!" + Start + "ERROR");
+                    System.out.println(r + rc + "!" + Start + "ERROR");
                 break;
         }
 
@@ -118,15 +128,15 @@ public class JLLog {
 
         switch (type) {
             case INFO:
-                System.out.println(m_r + End);
+                System.out.println(r + End);
                 break;
             case WARNING:
-                System.out.println(m_r + m_w + End);
+                System.out.println(r + yc + End);
                 break;
             case ERROR:
-                System.out.println(m_r + m_e + End);
+                System.out.println(r + rc + End);
                 if (e != null)
-                    System.out.println(getStackTraceString(e));
+                    System.out.println(GetStackTraceString(e));
                 break;
         }
 
@@ -139,7 +149,7 @@ public class JLLog {
     /**
      * Allows the parent Class to be used in the log.
      *
-     * @param sf - Shows the class the print was from.
+     * @param sf Shows the class the print was from.
      */
     public void AllowSentFrom(Class<?> sf) {
         m_sf = sf;

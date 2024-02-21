@@ -8,6 +8,7 @@ import imgui.glfw.ImGuiImplGlfw;
 import jlengine.engine.Display;
 import jlengine.engine.Engine;
 import jlengine.graphics.RenderManager;
+import jlengine.texture.Texture;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.glViewport;
@@ -25,6 +26,8 @@ public class JLImGui {
 
     boolean m_holding;
 
+    Texture test;
+
     public void Init(Display display) {
         m_frame = display.GetFrame();
         m_display = display;
@@ -39,14 +42,26 @@ public class JLImGui {
 
         MainTheme.Init();
 
+        test = new Texture("Test", "FolderIconS.png");
+
         viewport = ImGui.getMainViewport();
     }
 
     public void Update() {
         ImGui.dockSpaceOverViewport(viewport, ImGuiDockNodeFlags.PassthruCentralNode);
 
+        if (ImGui.beginMainMenuBar()) {
+            if (ImGui.beginMenu("File")) {
+                if (ImGui.menuItem("Quit")) {
+                    Engine.Close();
+                }
+                ImGui.endMenu();
+            }
+        }
+        ImGui.endMainMenuBar();
+
         ImGui.pushStyleVar(ImGuiStyleVar.Alpha, 1.0f);
-        ImGui.pushStyleColor(ImGuiCol.WindowBg, 25, 25, 25, 255);
+        ImGui.pushStyleColor(ImGuiCol.WindowBg, 184, 98, 54, 255);
         if (ImGui.begin("BG", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus)) {
             ImGui.setWindowPos(0, 0);
             ImGui.setWindowSize(m_display.GetWidth(), m_display.GetHeight());
@@ -58,24 +73,22 @@ public class JLImGui {
         if (ImGui.begin("Hierarchy")) {
             if (ImGui.beginListBox("##Hierarchy", ImGui.getContentRegionAvailX(), ImGui.getContentRegionAvailY())) {
                 for (int i = 0; i < 10; i++) {
-                    if (ImGui.selectable("Object " + i)) {
-                    }
+                    ImGui.selectable("Object " + i);
                 }
-                ImGui.endListBox();
             }
-            ImGui.end();
+            ImGui.endListBox();
         }
+        ImGui.end();
 
         if (ImGui.begin("Properties")) {
             if (ImGui.beginListBox("##Properties", ImGui.getContentRegionAvailX(), ImGui.getContentRegionAvailY())) {
                 for (int i = 0; i < 10; i++) {
-                    if (ImGui.selectable("Object " + i)) {
-                    }
+                    ImGui.selectable("Object " + i);
                 }
-                ImGui.endListBox();
             }
-            ImGui.end();
+            ImGui.endListBox();
         }
+        ImGui.end();
 
         int itemsEx = 50;
         if (ImGui.begin("Content Browser")) {
@@ -84,7 +97,9 @@ public class JLImGui {
                 if (ImGui.beginTable("##Content Browser", col, ImGuiTableFlags.NoBordersInBody | ImGuiTableFlags.Sortable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.SizingFixedFit, ImGui.getContentRegionAvailX(), ImGui.getContentRegionAvailY())) {
                     for (int i = 0; i <= itemsEx; i++) {
                         if (ImGui.tableGetColumnIndex() < col) {
-                            ImGui.imageButton(RenderManager.FrameBuffer.GetFrameTexture(), 64, 64, 0, 1, 1, 0);
+                            ImGui.pushStyleColor(ImGuiCol.Button, 0, 0, 0, 0);
+                            ImGui.imageButton(test.GetTexture(), 64, 64, 0, 1, 1, 0);
+                            ImGui.popStyleColor();
                             ImGui.text("Object " + i);
 
                             ImGui.tableNextColumn();
@@ -92,57 +107,44 @@ public class JLImGui {
                             ImGui.tableNextRow();
                         }
                     }
-                    ImGui.endTable();
                 }
+                ImGui.endTable();
             } else {
                 if (ImGui.beginListBox("##Content Browser", ImGui.getContentRegionAvailX(), ImGui.getContentRegionAvailY())) {
                     for (int i = 0; i <= itemsEx; i++) {
-                        if (ImGui.selectable("Object " + i)) {
-                        }
+                        ImGui.selectable("Object " + i);
                     }
-                    ImGui.endListBox();
                 }
+                ImGui.endListBox();
             }
-            ImGui.end();
         }
+        ImGui.end();
 
         if (ImGui.begin("Scene")) {
-            ImGui.beginChild("Render");
+            if (ImGui.beginChild("Render")) {
+                m_sceneWidth = ImGui.getWindowWidth();
+                m_sceneHeight = ImGui.getWindowHeight();
 
-            m_sceneWidth = ImGui.getWindowWidth();
-            m_sceneHeight = ImGui.getWindowHeight();
+                boolean resizing = m_sceneWidth != m_sceneWidthOld || m_sceneHeight != m_sceneHeightOld;
 
-            boolean resizing = m_sceneWidth != m_sceneWidthOld || m_sceneHeight != m_sceneHeightOld;
+                UpdateSceneView();
 
-            UpdateSceneView();
-
-            if (glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && resizing) {
-                m_holding = true;
-                RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
-                m_sceneWidthOld = m_sceneWidth;
-                m_sceneHeightOld = m_sceneHeight;
-            } else if (!m_holding && !resizing) {
-                ImGui.image(RenderManager.FrameBuffer.GetFrameTexture(), m_sceneWidth, m_sceneHeight, 0, 1, 1, 0);
-            }
-
-            if (m_holding && glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-                m_holding = false;
-            }
-
-            ImGui.endChild();
-
-            ImGui.end();
-        }
-
-        if (ImGui.beginMainMenuBar()) {
-            if (ImGui.beginMenu("File")) {
-                if (ImGui.menuItem("Quit")) {
-                    Engine.Close();
+                if (glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && resizing) {
+                    m_holding = true;
+                    RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
+                    m_sceneWidthOld = m_sceneWidth;
+                    m_sceneHeightOld = m_sceneHeight;
+                } else if (!m_holding && !resizing) {
+                    ImGui.image(RenderManager.FrameBuffer.GetFrameTexture(), m_sceneWidth, m_sceneHeight, 0, 1, 1, 0);
                 }
-                ImGui.endMenu();
+
+                if (m_holding && glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+                    m_holding = false;
+                }
             }
-            ImGui.endMainMenuBar();
+            ImGui.endChild();
         }
+        ImGui.end();
     }
 
     public void sFrame() {

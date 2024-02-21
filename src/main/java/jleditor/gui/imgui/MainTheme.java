@@ -70,12 +70,13 @@ public class MainTheme {
         }
 
         ImGui.pushStyleVar(ImGuiStyleVar.FrameBorderSize, 1);
-        ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 6);
-        ImGui.pushStyleVar(ImGuiStyleVar.ChildRounding, 6);
-        ImGui.pushStyleVar(ImGuiStyleVar.FrameRounding, 4);
-        ImGui.pushStyleVar(ImGuiStyleVar.PopupRounding, 4);
+        //ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding, 6);
+        //ImGui.pushStyleVar(ImGuiStyleVar.ChildRounding, 6);
+        //ImGui.pushStyleVar(ImGuiStyleVar.FrameRounding, 4);
+        //ImGui.pushStyleVar(ImGuiStyleVar.PopupRounding, 4);
         ImGui.pushStyleVar(ImGuiStyleVar.ScrollbarRounding, 9);
         ImGui.pushStyleVar(ImGuiStyleVar.GrabRounding, 5);
-        ImGui.pushStyleVar(ImGuiStyleVar.TabRounding, 4);
+        //ImGui.pushStyleVar(ImGuiStyleVar.TabRounding, 4);
+        ImGui.pushStyleVar(ImGuiStyleVar.TabRounding, 2);
     }
 }
