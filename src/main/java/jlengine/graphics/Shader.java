@@ -2,6 +2,7 @@ package jlengine.graphics;
 
 import jlengine.engine.Engine;
 import jlengine.utils.JLLog;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -89,6 +90,12 @@ public class Shader extends ShaderManager {
 
     public void SetVector3f(String name, Vector3f vector) {
         glUniform3f(glGetUniformLocation(m_program, name), vector.x, vector.y, vector.z);
+    }
+
+    public void SetMatrix4f(String name, Matrix4f matrix) {
+        float[] buffer = new float[16];
+        buffer = matrix.get(buffer);
+        glUniformMatrix4fv(glGetUniformLocation(m_program, name), false, buffer);
     }
 
     public void Use() {

@@ -1,10 +1,14 @@
 package jlengine.components.graphics.camera;
 
 import jlengine.components.JLComponentBase;
+import org.joml.Matrix4f;
 
 public class Camera implements JLComponentBase {
-    public Camera() {
+    Matrix4f m_view;
+    float m_fov;
 
+    public Camera() {
+        m_view = new Matrix4f().perspective()
     }
 
     @Override

@@ -93,7 +93,7 @@ public class Display {
         }
 
         glfwMakeContextCurrent(m_frame);
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
         glfwShowWindow(m_frame);
 
         GL.createCapabilities();
