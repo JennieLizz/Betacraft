@@ -43,6 +43,12 @@ public class Shader extends ShaderManager {
     }
 
     int LoadMissingShader(int shaderType) {
+        JLLog jl = new JLLog();
+        jl.showTime = true;
+        jl.AllowSentFrom(this.getClass());
+        String eShaderType = shaderType == GL_VERTEX_SHADER ? "Vertex" : "Fragment";
+        jl.Print(eShaderType + " shader has failed to load! Loaded backup shader!", JLLog.TYPE.ERROR, false, new Exception("Shader has failed to load!"));
+
         String fullVertPath = "src/main/resources/shaders/backupShaders/bk.vert";
         String fullFragPath = "src/main/resources/shaders/backupShaders/bk.frag";
         String simpleVertPath = "shaders/backupShaders/bk.vert";

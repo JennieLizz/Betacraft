@@ -34,7 +34,7 @@ public class App implements Game {
     @Override
     public void Init() {
         new RawModel("test2", vertices, indices);
-        s = new Shader("test", "src/main/resources/shaders/Raymarchingtest/Raymarchingtest.vert", "src/main/resources/shaders/Raymarchingtest/Raymarchingtest.frag");
+        s = new Shader("test", "src/main/resources/shders/Raymarchingtest/Raymarchingtest.vert", "src/main/resources/shaders/Raymarchingtest/Raymarchingtest.frag");
     }
 
     @Override
