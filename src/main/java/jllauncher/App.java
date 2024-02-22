@@ -10,6 +10,7 @@ import jlengine.utils.JLLog;
 public class App implements Game {
     static JLLog jl;
     static Display d;
+
     final float[] vertices = {
             -1, 1, 0, // V0
             -1, -1, 0, // V1
@@ -33,7 +34,7 @@ public class App implements Game {
     @Override
     public void Init() {
         new RawModel("test2", vertices, indices);
-        s = new Shader("test", "shaders/Raymarchingtest/Raymarchingtest.vert", "shaders/Raymarchingtest/Raymarchingtest.frag");
+        s = new Shader("test", "src/main/resources/shaders/Raymarchingtest/Raymarchingtest.vert", "src/main/resources/shaders/Raymarchingtest/Raymarchingtest.frag");
     }
 
     @Override

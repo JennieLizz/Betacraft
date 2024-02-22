@@ -45,6 +45,11 @@ public class Texture extends TextureManager {
         m_name = name;
         m_path = path;
 
+        if (Files.notExists(Path.of(path))) {
+            GenerateMissingTexture();
+            return;
+        }
+
         try {
             LoadTextureToBuffer(name, path);
         } catch (Exception e) {

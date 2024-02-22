@@ -42,7 +42,7 @@ public class JLImGui {
 
         MainTheme.Init();
 
-        test = new Texture("Test", "FolderIconS.png");
+        test = new Texture("Test", "src/main/resources/FolderIconS.png");
 
         viewport = ImGui.getMainViewport();
     }

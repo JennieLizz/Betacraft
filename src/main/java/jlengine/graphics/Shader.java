@@ -6,9 +6,10 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
@@ -26,8 +27,10 @@ public class Shader extends ShaderManager {
         jl.AllowSentFrom(this.getClass());
 
         m_name = name;
+
         m_vertexShader = LoadShader(vertexPath, GL_VERTEX_SHADER);
         m_fragmentShader = LoadShader(fragmentPath, GL_FRAGMENT_SHADER);
+
         m_program = glCreateProgram();
 
         glAttachShader(m_program, m_vertexShader);
@@ -37,6 +40,23 @@ public class Shader extends ShaderManager {
         glValidateProgram(m_program);
 
         AddShaderToManager(this);
+    }
+
+    int LoadMissingShader(int shaderType) {
+        String fullVertPath = "src/main/resources/shaders/backupShaders/bk.vert";
+        String fullFragPath = "src/main/resources/shaders/backupShaders/bk.frag";
+        String simpleVertPath = "shaders/backupShaders/bk.vert";
+        String simpleFragPath = "shaders/backupShaders/bk.frag";
+
+        if (shaderType == GL_VERTEX_SHADER) {
+            String path = Files.exists(Path.of(fullVertPath)) ? fullVertPath : simpleVertPath;
+            return LoadShader(path, GL_VERTEX_SHADER);
+        } else if (shaderType == GL_FRAGMENT_SHADER) {
+            String path = Files.exists(Path.of(fullFragPath)) ? fullFragPath : simpleFragPath;
+            return LoadShader(path, GL_FRAGMENT_SHADER);
+        }
+
+        return 0;
     }
 
     public void SetLayer(String layer) {
@@ -74,13 +94,16 @@ public class Shader extends ShaderManager {
         SetFloat("iTime", (System.currentTimeMillis() - Engine.GetStartTime()) * 0.001f);
     }
 
-    private int LoadShader(String file, int type) {
+    int LoadShader(String file, int type) {
         JLLog jl = new JLLog();
         jl.showTime = true;
 
+        if (Files.notExists(Path.of(file)))
+            return LoadMissingShader(type);
+
         StringBuilder shaderSource = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(Shader.class.getClassLoader().getResourceAsStream(file))));
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             while ((line = reader.readLine()) != null) {
                 shaderSource.append(line).append("//\n");
@@ -97,6 +120,7 @@ public class Shader extends ShaderManager {
             jl.Print("Shader: " + file + " failed to compile", JLLog.TYPE.ERROR, false, new Exception(
                     glGetShaderInfoLog(shaderID, 500)));
         }
+
         return shaderID;
     }
 
