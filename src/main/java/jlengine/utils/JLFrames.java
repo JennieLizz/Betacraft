@@ -23,4 +23,14 @@ public class JLFrames {
 
         return (int) m_frameRate;
     }
+
+    public static double GetDeltaTimeD() {
+        double m_currentTime = glfwGetTime();
+        return m_currentTime - m_lastFrameTime;
+    }
+
+    public static float GetDeltaTimeF() {
+        double m_currentTime = glfwGetTime();
+        return (float) (m_currentTime - m_lastFrameTime);
+    }
 }

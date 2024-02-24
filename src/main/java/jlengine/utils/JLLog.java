@@ -101,24 +101,24 @@ public class JLLog {
         String yc = COLORS.ANSI_YELLOW;
         String rc = COLORS.ANSI_RED;
 
-        long m_elapsedTime = System.currentTimeMillis() - m_StartTime;
+        long elapsedTime = System.currentTimeMillis() - m_StartTime;
 
         switch (type) {
             case INFO:
                 if (showTime)
-                    System.out.println(r + "@" + Start + "INFO" + " +@ " + m_elapsedTime);
+                    System.out.println(r + "@" + Start + "INFO" + " +@ " + elapsedTime);
                 else
                     System.out.println(r + "@" + Start + "INFO");
                 break;
             case WARNING:
                 if (showTime)
-                    System.out.println(r + yc + "^" + Start + "WARNING" + " +@ " + m_elapsedTime);
+                    System.out.println(r + yc + "^" + Start + "WARNING" + " +@ " + elapsedTime);
                 else
                     System.out.println(r + yc + "^" + Start + "WARNING");
                 break;
             case ERROR:
                 if (showTime)
-                    System.out.println(r + rc + "!" + Start + "ERROR" + " +@ " + m_elapsedTime);
+                    System.out.println(r + rc + "!" + Start + "ERROR" + " +@ " + elapsedTime);
                 else
                     System.out.println(r + rc + "!" + Start + "ERROR");
                 break;

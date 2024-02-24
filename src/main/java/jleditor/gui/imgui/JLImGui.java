@@ -16,7 +16,7 @@ import static org.lwjgl.opengl.GL11.glViewport;
 public class JLImGui {
     final ImGuiImplGlfw m_guiglfw = new ImGuiImplGlfw();
     final ImGuiImplGl3 m_guigl3 = new ImGuiImplGl3();
-    String glslVersion = "#version 330 core";
+    String glslVersion = "#version 450 core";
     long m_frame;
     Display m_display;
 

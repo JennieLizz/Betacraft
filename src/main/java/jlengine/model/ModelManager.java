@@ -14,14 +14,6 @@ public class ModelManager {
         m_models.remove(rModel.m_name);
     }
 
-    public static void SetModelLayer(String oLayer, String nLayer) {
-        m_models.forEach((key, value) -> {
-            if (value.GetLayer().equals(oLayer)) {
-                value.SetLayer(nLayer);
-            }
-        });
-    }
-
     public static RawModel GetModel(String name) {
         return m_models.get(name);
     }

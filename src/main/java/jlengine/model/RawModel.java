@@ -1,5 +1,6 @@
 package jlengine.model;
 
+import jlengine.components.math.Transform;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -15,10 +16,10 @@ public class RawModel extends ModelManager {
     final int m_vaoID;
     final int m_vboID;
     final int m_eboID;
+    public Transform transform = new Transform();
     String m_shaderLayer = "Default";
     float[] m_vertices;
     int[] m_indices = {};
-
     FloatBuffer m_vert;
     IntBuffer m_ind;
 
@@ -57,7 +58,6 @@ public class RawModel extends ModelManager {
     }
 
     public void SetLayer(String layer) {
-        SetModelLayer(m_shaderLayer, layer);
         m_shaderLayer = layer;
     }
 

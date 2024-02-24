@@ -24,6 +24,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 import static org.lwjgl.system.MemoryUtil.memSlice;
 
 public class Texture extends TextureManager {
+    static JLLog jl = new JLLog();
     String m_name;
     String m_path;
     ByteBuffer m_imageBuffer;
@@ -38,7 +39,6 @@ public class Texture extends TextureManager {
     int m_WRAP_T = GL_REPEAT;
 
     public Texture(String name, String path) {
-        JLLog jl = new JLLog();
         jl.showTime = true;
         jl.AllowSentFrom(this.getClass());
 
@@ -174,10 +174,6 @@ public class Texture extends TextureManager {
     }
 
     void LoadTextureToBuffer(String name, String path) throws IOException {
-        JLLog jl = new JLLog();
-        jl.showTime = true;
-        jl.AllowSentFrom(this.getClass());
-
         m_imageBuffer = IOResourceToByteBuffer(path);
 
         try (MemoryStack stack = stackPush()) {

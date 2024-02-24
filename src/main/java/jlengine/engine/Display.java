@@ -20,7 +20,7 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Display {
-    final JLLog jl = new JLLog();
+    static JLLog jl = new JLLog();
 
     final long m_frame;
     int m_width, m_height;
@@ -38,8 +38,10 @@ public class Display {
         jl.showTime = true;
         jl.AllowSentFrom(this.getClass());
 
-        if (Objects.equals(args[0], "editor")) {
-            m_editor = true;
+        if (args != null && args.length > 0) {
+            if (args[0].equals("editor")) {
+                m_editor = true;
+            }
         }
 
         GLFWErrorCallback.createPrint(System.err).set();
@@ -99,9 +101,12 @@ public class Display {
         GL.createCapabilities();
 
         glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        glEnable(GL_DEPTH_TEST);
 
-        gui = new JLImGui();
-        gui.Init(this);
+        if (m_editor) {
+            gui = new JLImGui();
+            gui.Init(this);
+        }
     }
 
     public int GetWidth() {
@@ -156,16 +161,20 @@ public class Display {
 
         RenderManager.FrameBuffer.UnbindFrameBuffer();
 
-        gui.sFrame();
-        gui.Update();
-        gui.eFrame();
+        if (m_editor) {
+            gui.sFrame();
+            gui.Update();
+            gui.eFrame();
+        }
 
         glfwSwapBuffers(m_frame);
         glfwPollEvents();
     }
 
     public void Close() {
-        gui.Close();
+        if (m_editor) {
+            gui.Close();
+        }
 
         RenderManager.FrameBuffer.DeleteFrameBuffer();
 

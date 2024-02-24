@@ -1,14 +1,23 @@
 package jlengine.graphics;
 
+import jlengine.components.graphics.camera.Camera;
 import jlengine.engine.Display;
 import jlengine.model.RawModel;
 import jlengine.utils.JLLog;
+import org.joml.Matrix4f;
 
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RenderManager {
     public static int cWidth, cHeight;
+    static JLLog jl = new JLLog();
+
+    static Camera m_camera;
+
+    public static void SetUseCamera(Camera camera) {
+        m_camera = camera;
+    }
 
     public static void Render(Display display) {
         for (RawModel rm : RawModel.GetModels().values()) {
@@ -17,11 +26,17 @@ public class RenderManager {
                 if (rm.GetLayer().equals(layer)) {
                     ShaderManager.GetShaders().forEach(shader -> {
                         if (shader.GetLayer().equals(layer)) {
+                            Matrix4f projMat = m_camera.view.GetTransform();
+                            Matrix4f viewMat = m_camera.transform.GetTransform();
+                            Matrix4f modelMat = rm.transform.GetTransform();
+
+                            Matrix4f[] mats = {projMat, viewMat, modelMat};
+
                             shader.Use();
                             if (display.IsEditor())
-                                shader.SendUniformVariables(cWidth, cHeight);
+                                shader.SendUniformVariables(cWidth, cHeight, mats);
                             else
-                                shader.SendUniformVariables(display.GetWidth(), display.GetHeight());
+                                shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
                         }
                     });
                 }
@@ -31,15 +46,12 @@ public class RenderManager {
         }
     }
 
-    public class FrameBuffer {
+    public static class FrameBuffer {
         static int m_fbo;
         static int m_tex;
         static int m_rbo;
 
         public static void CopyFrameBuffer(int width, int height) {
-            JLLog jl = new JLLog();
-            jl.showTime = true;
-
             m_fbo = glGenFramebuffers();
             glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 

@@ -1,23 +1,33 @@
 package jlengine.components.graphics.camera;
 
-import jlengine.components.JLComponentBase;
+import jlengine.components.math.Transform;
+import jlengine.graphics.RenderManager;
 import org.joml.Matrix4f;
 
-public class Camera implements JLComponentBase {
-    Matrix4f m_view;
-    float m_fov;
+public class Camera {
+    public Transform transform = new Transform();
+    public Transform view = new Transform();
+    double m_fov = 45.0;
+    float m_aspect = 16.0f / 9.0f;
+    float m_zNear = 0.1f;
+    float m_zFar = 100.0f;
 
     public Camera() {
-        m_view = new Matrix4f().perspective()
+        transform.SetTransform(new Matrix4f()
+                .perspective((float) Math.toRadians(m_fov), m_aspect, m_zNear, m_zFar)
+        );
+
+        view.SetTransform(new Matrix4f()
+                .lookAt(
+                        0.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 3.0f,
+                        0.0f, 1.0f, 0.0f
+                ));
+
+        Use();
     }
 
-    @Override
-    public void Init() {
-
-    }
-
-    @Override
-    public void Update() {
-
+    public void Use() {
+        RenderManager.SetUseCamera(this);
     }
 }

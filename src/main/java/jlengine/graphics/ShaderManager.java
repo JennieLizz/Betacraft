@@ -12,6 +12,7 @@ import static org.lwjgl.opengl.GL20.glUseProgram;
 public class ShaderManager {
     static final List<String> m_layers = new ArrayList<>(List.of("Default"));
     static final Map<String, Shader> m_shaders = new HashMap<>();
+    static JLLog jl = new JLLog();
 
     public static void ClearShaders() {
         glUseProgram(0);
@@ -31,9 +32,6 @@ public class ShaderManager {
     }
 
     public static void AddLayer(String name) {
-        JLLog jl = new JLLog();
-        jl.showTime = true;
-
         if (!m_layers.contains(name)) {
             m_layers.add(name);
             return;
@@ -47,9 +45,6 @@ public class ShaderManager {
     }
 
     public static void RemoveLayer(String name) {
-        JLLog jl = new JLLog();
-        jl.showTime = true;
-
         if (name.equals("Default")) {
             jl.Print("Cannot remove default layer!", JLLog.TYPE.WARNING, false, null);
             return;
@@ -70,9 +65,6 @@ public class ShaderManager {
     }
 
     public static Shader GetShader(String name) {
-        JLLog jl = new JLLog();
-        jl.showTime = true;
-
         for (Map.Entry<String, Shader> entry : m_shaders.entrySet()) {
             if (entry.getKey().equals(name)) {
                 return entry.getValue();
