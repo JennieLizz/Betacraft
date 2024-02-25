@@ -17,13 +17,19 @@ import java.nio.file.Path;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
 
-public class Shader extends ShaderManager {
+public final class Shader extends ShaderManager {
     static JLLog jl = new JLLog();
+
+    public int s_PositionAttrib;
+    public int s_TexCoordAttrib;
+    public int s_ColorAttrib;
+
     String m_shaderLayer = "Default";
     String m_name;
     int m_program;
     int m_vertexShader;
     int m_fragmentShader;
+    int m_depth;
 
     public Shader(String name, String vertexPath, String fragmentPath) {
         jl.showTime = true;
@@ -41,6 +47,12 @@ public class Shader extends ShaderManager {
 
         glLinkProgram(m_program);
         glValidateProgram(m_program);
+
+        glUseProgram(m_program);
+        s_PositionAttrib = glGetAttribLocation(m_program, "jl_position");
+        s_ColorAttrib = glGetAttribLocation(m_program, "jl_color");
+        s_TexCoordAttrib = glGetAttribLocation(m_program, "jl_texCoord");
+        glUseProgram(0);
 
         AddShaderToManager(this);
     }
@@ -68,6 +80,15 @@ public class Shader extends ShaderManager {
     public void SetLayer(String layer) {
         if (layer.length() > 1) {
             m_shaderLayer = layer;
+            ShaderManager.AddLayer(layer);
+        }
+    }
+
+    public void SetLayer(String layer, int depth) {
+        if (layer.length() > 1) {
+            m_shaderLayer = layer;
+            m_depth = depth;
+            ShaderManager.AddLayer(layer, depth);
         }
     }
 

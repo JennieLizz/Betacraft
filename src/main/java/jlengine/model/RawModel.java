@@ -6,6 +6,7 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static jlengine.graphics.RenderManager.default3D;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -19,8 +20,10 @@ public class RawModel extends ModelManager {
     public Transform transform = new Transform();
     String m_shaderLayer = "Default";
     float[] m_vertices;
+    float[] m_texCoords;
     int[] m_indices = {};
     FloatBuffer m_vert;
+    FloatBuffer m_tex;
     IntBuffer m_ind;
 
     public RawModel(String name, float[] vertices, int[] indices) {
@@ -37,7 +40,12 @@ public class RawModel extends ModelManager {
         glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
 
         glBufferData(GL_ARRAY_BUFFER, m_vert, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+        glVertexAttribPointer(default3D.s_PositionAttrib, 3, GL_FLOAT, false, 8 * Float.BYTES, 0L);
+        glVertexAttribPointer(default3D.s_ColorAttrib, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
+        glVertexAttribPointer(default3D.s_TexCoordAttrib, 2, GL_FLOAT, false, 8 * Float.BYTES, 6 * Float.BYTES);
+        glEnableVertexAttribArray(default3D.s_PositionAttrib);
+        glEnableVertexAttribArray(default3D.s_ColorAttrib);
+        glEnableVertexAttribArray(default3D.s_TexCoordAttrib);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         m_eboID = glGenBuffers();

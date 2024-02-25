@@ -9,10 +9,14 @@ import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
-public class ShaderManager {
-    static final List<String> m_layers = new ArrayList<>(List.of("Default"));
+public sealed class ShaderManager permits Shader {
+    static final List<String> m_layers = new ArrayList<>();
     static final Map<String, Shader> m_shaders = new HashMap<>();
     static JLLog jl = new JLLog();
+
+    static {
+        m_layers.addFirst("Default");
+    }
 
     public static void ClearShaders() {
         glUseProgram(0);
@@ -33,11 +37,17 @@ public class ShaderManager {
 
     public static void AddLayer(String name) {
         if (!m_layers.contains(name)) {
-            m_layers.add(name);
+            m_layers.addLast(name);
             return;
         }
 
         jl.Print("Layer " + name + " already exists!", JLLog.TYPE.WARNING, false, null);
+    }
+
+    static void AddLayer(String name, int depth) {
+        if (!m_layers.contains(name)) {
+            m_layers.add(depth, name);
+        }
     }
 
     public static List<String> GetLayers() {
@@ -71,6 +81,7 @@ public class ShaderManager {
             }
         }
 
+        jl.Print("Shader " + name + " does not exist!", JLLog.TYPE.ERROR, false, null);
         return null;
     }
 

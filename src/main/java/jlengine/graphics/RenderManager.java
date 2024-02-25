@@ -11,9 +11,14 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RenderManager {
     public static int cWidth, cHeight;
+    public static Shader default3D;
+    
     static JLLog jl = new JLLog();
-
     static Camera m_camera;
+
+    static {
+        default3D = new Shader("Default", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
+    }
 
     public static void SetUseCamera(Camera camera) {
         m_camera = camera;
@@ -37,12 +42,12 @@ public class RenderManager {
                                 shader.SendUniformVariables(cWidth, cHeight, mats);
                             else
                                 shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
+
+                            rm.Bind();
                         }
                     });
                 }
             });
-
-            rm.Bind();
         }
     }
 

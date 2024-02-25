@@ -3,10 +3,12 @@ package jlengine.components.graphics.camera;
 import jlengine.components.math.Transform;
 import jlengine.graphics.RenderManager;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-public class Camera {
+public final class Camera {
     public Transform perspective = new Transform();
     public Transform view = new Transform();
+    Vector3f m_pos;
     double m_fov = 45.0;
     float m_aspect = 16.0f / 9.0f;
     float m_zNear = 0.01f;
@@ -30,4 +32,25 @@ public class Camera {
     public void Use() {
         RenderManager.SetUseCamera(this);
     }
+
+    /*public void SetPosition(Vector3f position) {
+        view.SetTransform(new Matrix4f()
+                .lookAt(
+                        position.x, position.y, position.z,
+                        0.0f, 0.0f, 3.0f,
+                        0.0f, 1.0f, 0.0f
+                ));
+    }
+
+    public Vector3f GetPosition() {
+        return m_transform.getTranslation(new Vector3f());
+    }
+
+    public void SetRotation(Quaternionf rotation) {
+        m_transform.rotate(rotation);
+    }
+
+    public Quaternionf GetRotation() {
+        return m_transform.getNormalizedRotation(new Quaternionf());
+    }*/
 }
