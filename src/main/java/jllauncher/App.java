@@ -8,6 +8,7 @@ import jlengine.graphics.Shader;
 import jlengine.graphics.ShaderManager;
 import jlengine.model.RawModel;
 import jlengine.utils.JLLog;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -41,27 +42,35 @@ public class App implements Game {
     RawModel rm;
     RawModel bg;
 
+    float up = 0.0f;
+
     public static void main(String[] args) {
         jl = new JLLog();
         jl.showTime = true;
 
-        d = new Display(1280, 720, "JLE Test!", new String[]{});
+        d = new Display(1280, 720, "JLE Test!", args);
         new Engine(d);
     }
 
     @Override
     public void Init() {
         rm = new RawModel("test2", vertices, indices);
-        rm.transform.SetPosition(new Vector3f(0.0f, 0.0f, -2.0f));
+        rm.transform.SetPosition(new Vector3f(5.0f, 0.0f, -10.0f));
         bg = new RawModel("bg", vertices2, indices2);
         bg.SetLayer("bg");
-        bg.transform.SetPosition(new Vector3f(0.0f, 0.0f, -4.0f));
-        //bg.transform.SetScale(new Vector3f(50.0f, 50.0f, 0));
-        new Shader("test", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
-        new Shader("bg", "src/main/resources/shaders/CoolColors/sh.vert", "src/main/resources/shaders/CoolColors/sh.frag")
+        bg.transform.SetPosition(new Vector3f(0.0f, 0.0f, -11.0f));
+        bg.transform.SetScale(new Vector3f(50.0f, 50.0f, 0.0f));
+        new Shader("test", "src/main/resources/shaders/CoolColors/sh.vert", "src/main/resources/shaders/CoolColors/sh.frag");
+        new Shader("bg", "src/main/resources/shaders/Raymarchingtest/sh.vert", "src/main/resources/shaders/Raymarchingtest/sh.frag")
                 .SetLayer("bg");
         ShaderManager.AddLayer("bg");
+        
         cam = new Camera();
+        cam.view.SetTransform(new Matrix4f().setLookAt(
+                0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, -1.0f,
+                0.0f, 1.0f, 0.0f
+        ));
     }
 
     @Override
@@ -72,5 +81,9 @@ public class App implements Game {
         Quaternionf toQuat = EulerToQuaternion(rot);
 
         rm.transform.SetRotation(toQuat);
+
+        up += 0.001f;
+
+
     }
 }

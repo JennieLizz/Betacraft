@@ -1,12 +1,15 @@
 #version 330 core
 
 out vec4 fragColor;
+in vec3 camPos;
 
 uniform vec2 iResolution;
 uniform float iTime;
 vec2 fragCoord = vec2(gl_FragCoord.xy);
 
-//----
+uniform mat4 view;
+uniform mat4 proj;
+uniform mat4 model;
 
 #define DRAG_MULT 0.38 // changes how much waves pull on the water
 #define WATER_DEPTH 1.0 // how deep is the water
@@ -101,17 +104,16 @@ mat3 createRotationMatrixAxisAngle(vec3 axis, float angle) {
 }
 
 // Helper function that generates camera ray based on UV and mouse
-vec3 getRay(vec2 fragCoord) {
+vec4 getRay(vec2 fragCoord) {
     vec2 uv = ((fragCoord.xy / iResolution.xy) * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
-    // for fisheye, uncomment following line and comment the next one
-    //vec3 proj = normalize(vec3(uv.x, uv.y, 1.0) + vec3(uv.x, uv.y, -1.0) * pow(length(uv), 2.0) * 0.05);
-    vec3 proj = normalize(vec3(uv.x, uv.y, 1.5));
-    if (iResolution.x < 600.0) {
-        return proj;
-    }
+    vec3 projB = normalize(vec3(uv.x, uv.y, 1.5));
+    vec4 projC = vec4(projB.xyz, 1.0);
+/*
     return createRotationMatrixAxisAngle(vec3(0.0, -1.0, 0.0), 3.0 * ((iResolution.x / 2 + 0.5) * 2.0 - 1.0))
     * createRotationMatrixAxisAngle(vec3(1.0, 0.0, 0.0), 0)
     * proj;
+    */
+    return view * projC;
 }
 
 // Ray-Plane intersection checker
@@ -170,7 +172,7 @@ vec3 aces_tonemap(vec3 color) {
 // Main
 void main() {
     // get the ray
-    vec3 ray = getRay(fragCoord);
+    vec3 ray = getRay(fragCoord).xyz;
     if (ray.y >= 0.0) {
         // if ray.y is positive, render the sky
         vec3 C = getAtmosphere(ray) + getSun(ray);
@@ -184,7 +186,8 @@ void main() {
     vec3 waterPlaneLow = vec3(0.0, -WATER_DEPTH, 0.0);
 
     // define ray origin, moving around
-    vec3 origin = vec3(iTime * 0.2, CAMERA_HEIGHT, 1);
+    //vec3 origin = vec3(iTime * 4, CAMERA_HEIGHT, 1);
+    vec3 origin = vec3(0, 3, 0);
 
     // calculate intersections and reconstruct positions
     float highPlaneHit = intersectPlane(origin, ray, waterPlaneHigh, vec3(0.0, 1.0, 0.0));

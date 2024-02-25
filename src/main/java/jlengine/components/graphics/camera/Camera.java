@@ -5,15 +5,15 @@ import jlengine.graphics.RenderManager;
 import org.joml.Matrix4f;
 
 public class Camera {
-    public Transform transform = new Transform();
+    public Transform perspective = new Transform();
     public Transform view = new Transform();
     double m_fov = 45.0;
     float m_aspect = 16.0f / 9.0f;
-    float m_zNear = 0.1f;
+    float m_zNear = 0.01f;
     float m_zFar = 100.0f;
 
     public Camera() {
-        transform.SetTransform(new Matrix4f()
+        perspective.SetTransform(new Matrix4f()
                 .perspective((float) Math.toRadians(m_fov), m_aspect, m_zNear, m_zFar)
         );
 

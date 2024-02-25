@@ -104,8 +104,8 @@ public class Shader extends ShaderManager {
     public void SendUniformVariables(int width, int height, Matrix4f[] mats) {
         SetVector2f("iResolution", new Vector2f(width, height));
         SetFloat("iTime", (System.currentTimeMillis() - Engine.GetStartTime()) * 0.001f);
-        SetMatrix4("proj", mats[0]);
-        SetMatrix4("view", mats[1]);
+        SetMatrix4("view", mats[0]);
+        SetMatrix4("proj", mats[1]);
         SetMatrix4("model", mats[2]);
     }
 

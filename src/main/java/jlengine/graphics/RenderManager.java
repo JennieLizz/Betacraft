@@ -26,11 +26,11 @@ public class RenderManager {
                 if (rm.GetLayer().equals(layer)) {
                     ShaderManager.GetShaders().forEach(shader -> {
                         if (shader.GetLayer().equals(layer)) {
-                            Matrix4f projMat = m_camera.view.GetTransform();
-                            Matrix4f viewMat = m_camera.transform.GetTransform();
+                            Matrix4f viewMat = m_camera.view.GetTransform();
+                            Matrix4f projMat = m_camera.perspective.GetTransform();
                             Matrix4f modelMat = rm.transform.GetTransform();
 
-                            Matrix4f[] mats = {projMat, viewMat, modelMat};
+                            Matrix4f[] mats = {viewMat, projMat, modelMat};
 
                             shader.Use();
                             if (display.IsEditor())

@@ -45,9 +45,11 @@ public class Texture extends TextureManager {
         m_name = name;
         m_path = path;
 
-        if (Files.notExists(Path.of(path))) {
-            GenerateMissingTexture();
-            return;
+        if (!path.startsWith("http")) {
+            if (Files.notExists(Path.of(path))) {
+                GenerateMissingTexture();
+                return;
+            }
         }
 
         try {
