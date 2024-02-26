@@ -55,9 +55,11 @@ public class App implements Game {
         Shader le = new Shader("test", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
         le.SetLayer("Troll");
 
-        RawModel troll = new RawModel(1 + "", vertices, indices);
-        troll.transform.SetPosition(new Vector3f(0.0f, 0.0f, -2.0f));
-        troll.SetLayer("Troll");
+        for (float i = -3.0f; i <= 3.0f; i += 0.5f) {
+            RawModel troll = new RawModel(i + "", vertices, indices);
+            troll.transform.SetPosition(new Vector3f(i, 0.0f, -2.0f));
+            troll.SetLayer("Troll");
+        }
 
         Texture trollFace = new Texture("TrollMan", "C:/Users/jenni/Downloads/trollBruh.png");
         glActiveTexture(GL_TEXTURE1);
@@ -66,7 +68,7 @@ public class App implements Game {
         le.SetVariable("image", trollFace.GetTexture());
 
         new Shader("Over", "src/main/resources/shaders/CoolColors/sh.vert", "src/main/resources/shaders/CoolColors/sh.frag")
-                .SetLayer("Overlay", 0);
+                .SetLayer("Overlay");
 
         RawModel bruh = new RawModel("Overlay", vertices, indices);
         bruh.SetLayer("Overlay");
