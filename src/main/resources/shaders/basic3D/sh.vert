@@ -7,6 +7,11 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 model;
 
+out vec3 aColor;
+out vec2 aTexCoord;
+
 void main() {
-    gl_Position = view * proj * model * vec4(jl_position, 1.0);
+    gl_Position = proj * view * model * vec4(jl_position, 1.0);
+    aColor = jl_color;
+    aTexCoord = jl_texCoords;
 }

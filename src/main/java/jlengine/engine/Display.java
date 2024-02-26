@@ -4,6 +4,7 @@ import jleditor.gui.imgui.JLImGui;
 import jlengine.graphics.RenderManager;
 import jlengine.graphics.ShaderManager;
 import jlengine.model.ModelManager;
+import jlengine.texture.TextureManager;
 import jlengine.utils.JLLog;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -12,6 +13,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 import java.util.Objects;
+import java.util.Random;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -100,12 +102,12 @@ public class Display {
 
         GL.createCapabilities();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(new Random().nextFloat(), new Random().nextFloat(), new Random().nextFloat(), 1.0f);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glEnable(GL_CULL_FACE);
+        //glEnable(GL_CULL_FACE);
         glFrontFace(GL_CW);
 
         if (m_editor) {
@@ -183,6 +185,7 @@ public class Display {
 
         RenderManager.FrameBuffer.DeleteFrameBuffer();
 
+        TextureManager.DeleteTextures();
         ModelManager.DeleteModels();
         ShaderManager.DeleteShaders();
 

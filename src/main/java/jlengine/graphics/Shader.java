@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
@@ -31,6 +33,8 @@ public final class Shader extends ShaderManager {
     int m_fragmentShader;
     int m_depth;
 
+    List<ShaderQueue> m_shaderQueue = new ArrayList<>();
+
     public Shader(String name, String vertexPath, String fragmentPath) {
         jl.showTime = true;
         jl.AllowSentFrom(this.getClass());
@@ -47,12 +51,6 @@ public final class Shader extends ShaderManager {
 
         glLinkProgram(m_program);
         glValidateProgram(m_program);
-
-        glUseProgram(m_program);
-        s_PositionAttrib = glGetAttribLocation(m_program, "jl_position");
-        s_ColorAttrib = glGetAttribLocation(m_program, "jl_color");
-        s_TexCoordAttrib = glGetAttribLocation(m_program, "jl_texCoord");
-        glUseProgram(0);
 
         AddShaderToManager(this);
     }
@@ -96,38 +94,46 @@ public final class Shader extends ShaderManager {
         return m_shaderLayer;
     }
 
+    public void SetVariable(String name, Object value) {
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
+    }
+
+    /*
     public void SetInt(String name, int value) {
-        glUniform1i(glGetUniformLocation(m_program, name), value);
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
 
     public void SetFloat(String name, float value) {
-        glUniform1f(glGetUniformLocation(m_program, name), value);
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
 
-    public void SetVector2f(String name, Vector2f vector) {
-        glUniform2f(glGetUniformLocation(m_program, name), vector.x, vector.y);
+    public void SetVector2f(String name, Vector2f value) {
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
 
-    public void SetVector3f(String name, Vector3f vector) {
-        glUniform3f(glGetUniformLocation(m_program, name), vector.x, vector.y, vector.z);
+    public void SetVector3f(String name, Vector3f value) {
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
 
-    public void SetMatrix4(String name, Matrix4f matrix) {
-        FloatBuffer fbm = BufferUtils.createFloatBuffer(16);
-        matrix.get(fbm);
-        glUniformMatrix4fv(glGetUniformLocation(m_program, name), false, fbm);
+    public void SetMatrix4(String name, Matrix4f value) {
+        m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
+    */
 
     public void Use() {
         glUseProgram(m_program);
+        for (ShaderQueue queue : m_shaderQueue) {
+            queue.Execute();
+        }
+        m_shaderQueue.clear();
     }
 
     public void SendUniformVariables(int width, int height, Matrix4f[] mats) {
-        SetVector2f("iResolution", new Vector2f(width, height));
-        SetFloat("iTime", (System.currentTimeMillis() - Engine.GetStartTime()) * 0.001f);
-        SetMatrix4("view", mats[0]);
-        SetMatrix4("proj", mats[1]);
-        SetMatrix4("model", mats[2]);
+        SetVariable("iResolution", new Vector2f(width, height));
+        SetVariable("iTime", (System.currentTimeMillis() - Engine.GetStartTime()) * 0.001f);
+        SetVariable("view", mats[0]);
+        SetVariable("proj", mats[1]);
+        SetVariable("model", mats[2]);
     }
 
     int LoadShader(String file, int type) {
@@ -173,5 +179,48 @@ public final class Shader extends ShaderManager {
         glDeleteShader(m_vertexShader);
         glDeleteShader(m_fragmentShader);
         glDeleteProgram(m_program);
+    }
+
+    class ShaderQueue {
+        String m_name;
+        Object m_value;
+
+        public ShaderQueue(String name, Object value) {
+            m_name = name;
+            m_value = value;
+        }
+
+        public void Execute() {
+            switch (m_value) {
+                case Integer i -> SetInt((int) m_value);
+                case Float v -> SetFloat((float) m_value);
+                case Vector2f vector2f -> SetVector2f(vector2f);
+                case Vector3f vector3f -> SetVector3f(vector3f);
+                case Matrix4f matrix4f -> SetMatrix4(matrix4f);
+                case null, default -> jl.Print("Invalid value argument!", JLLog.TYPE.ERROR, false, null);
+            }
+        }
+
+        void SetInt(int value) {
+            glUniform1i(glGetUniformLocation(m_program, m_name), value);
+        }
+
+        void SetFloat(float value) {
+            glUniform1f(glGetUniformLocation(m_program, m_name), value);
+        }
+
+        void SetVector2f(Vector2f vector) {
+            glUniform2f(glGetUniformLocation(m_program, m_name), vector.x, vector.y);
+        }
+
+        void SetVector3f(Vector3f vector) {
+            glUniform3f(glGetUniformLocation(m_program, m_name), vector.x, vector.y, vector.z);
+        }
+
+        void SetMatrix4(Matrix4f matrix) {
+            FloatBuffer fbm = BufferUtils.createFloatBuffer(16);
+            matrix.get(fbm);
+            glUniformMatrix4fv(glGetUniformLocation(m_program, m_name), false, fbm);
+        }
     }
 }

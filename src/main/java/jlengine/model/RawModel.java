@@ -6,10 +6,10 @@ import org.lwjgl.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import static jlengine.graphics.RenderManager.default3D;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
 
 public class RawModel extends ModelManager {
@@ -38,21 +38,18 @@ public class RawModel extends ModelManager {
 
         m_vboID = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
-
         glBufferData(GL_ARRAY_BUFFER, m_vert, GL_STATIC_DRAW);
-        glVertexAttribPointer(default3D.s_PositionAttrib, 3, GL_FLOAT, false, 8 * Float.BYTES, 0L);
-        glVertexAttribPointer(default3D.s_ColorAttrib, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
-        glVertexAttribPointer(default3D.s_TexCoordAttrib, 2, GL_FLOAT, false, 8 * Float.BYTES, 6 * Float.BYTES);
-        glEnableVertexAttribArray(default3D.s_PositionAttrib);
-        glEnableVertexAttribArray(default3D.s_ColorAttrib);
-        glEnableVertexAttribArray(default3D.s_TexCoordAttrib);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         m_eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ind, GL_STATIC_DRAW);
 
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.BYTES, 0L);
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
+        glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.BYTES, 6 * Float.BYTES);
+
         glBindVertexArray(0);
+        glBindBuffer(0, 0);
 
         AddModelToManager(this);
     }
@@ -60,8 +57,12 @@ public class RawModel extends ModelManager {
     public void Bind() {
         glBindVertexArray(m_vaoID);
         glEnableVertexAttribArray(0);
-        glDrawElements(GL_TRIANGLES, m_vertices.length, GL_UNSIGNED_INT, 0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glDrawElements(GL_TRIANGLES, m_vertices.length, GL_UNSIGNED_INT, 0L);
         glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
         glBindVertexArray(0);
     }
 

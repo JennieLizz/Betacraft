@@ -12,7 +12,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class RenderManager {
     public static int cWidth, cHeight;
     public static Shader default3D;
-    
+
     static JLLog jl = new JLLog();
     static Camera m_camera;
 
@@ -37,12 +37,12 @@ public class RenderManager {
 
                             Matrix4f[] mats = {viewMat, projMat, modelMat};
 
-                            shader.Use();
                             if (display.IsEditor())
                                 shader.SendUniformVariables(cWidth, cHeight, mats);
                             else
                                 shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
 
+                            shader.Use();
                             rm.Bind();
                         }
                     });

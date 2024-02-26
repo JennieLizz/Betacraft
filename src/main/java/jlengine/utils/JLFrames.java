@@ -30,7 +30,14 @@ public class JLFrames {
     }
 
     public static float GetDeltaTimeF() {
-        double m_currentTime = glfwGetTime();
-        return (float) (m_currentTime - m_lastFrameTime);
+        return (float) (glfwGetTime() - m_lastFrameTime);
+    }
+
+    public static double GetTimeSinceStartD() {
+        return glfwGetTime();
+    }
+
+    public static float GetTimeSinceStartF() {
+        return (float) glfwGetTime();
     }
 }
