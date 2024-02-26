@@ -1,10 +1,11 @@
 package jlengine.components.math;
 
+import jlengine.components.ComponentBase;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class Transform {
+public class Transform implements ComponentBase {
     Matrix4f m_transform = new Matrix4f();
 
     public void SetPosition(Vector3f position) {

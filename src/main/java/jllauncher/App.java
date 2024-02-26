@@ -43,15 +43,11 @@ public class App implements Game {
         jl.showTime = true;
 
         d = new Display(1280, 720, "JLE Test!", args);
-        new Engine(d);
+        new Engine(d, new App());
     }
 
     @Override
     public void Init() {
-        /*new Shader("bg", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag")
-                .SetLayer("bg", 0);
-        */
-
         Shader le = new Shader("test", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
         le.SetLayer("Troll");
 

@@ -1,6 +1,7 @@
 package jlengine.engine;
 
 import jleditor.gui.imgui.JLImGui;
+import jlengine.components.ComponentBase;
 import jlengine.graphics.RenderManager;
 import jlengine.graphics.ShaderManager;
 import jlengine.model.ModelManager;
@@ -28,7 +29,9 @@ public class Display {
     int m_width, m_height;
     String m_title;
 
-    JLImGui gui;
+    ComponentBase m_cb;
+
+    JLImGui m_gui;
 
     boolean m_editor;
 
@@ -75,6 +78,8 @@ public class Display {
 
                 if (!m_editor)
                     glViewport(0, 0, r_width, r_height);
+
+
             });
         } catch (NullPointerException e) {
             jl.Print("Failed to set window size callback!", JLLog.TYPE.ERROR, false, e);
@@ -112,8 +117,8 @@ public class Display {
         glFrontFace(GL_CW);
 
         if (m_editor) {
-            gui = new JLImGui();
-            gui.Init(this);
+            m_gui = new JLImGui();
+            m_gui.Init();
         }
     }
 
@@ -149,6 +154,10 @@ public class Display {
         return !glfwWindowShouldClose(m_frame);
     }
 
+    public void CloseEarly() {
+        glfwSetWindowShouldClose(m_frame, true);
+    }
+
     public boolean IsEditor() {
         return m_editor;
     }
@@ -161,8 +170,8 @@ public class Display {
         RenderManager.FrameBuffer.BindFrameBuffer();
 
         if (m_editor) {
-            RenderManager.cWidth = gui.GetSceneWidth();
-            RenderManager.cHeight = gui.GetSceneHeight();
+            RenderManager.cWidth = m_gui.GetSceneWidth();
+            RenderManager.cHeight = m_gui.GetSceneHeight();
         }
 
         RenderManager.Render(this);
@@ -170,9 +179,9 @@ public class Display {
         RenderManager.FrameBuffer.UnbindFrameBuffer();
 
         if (m_editor) {
-            gui.sFrame();
-            gui.Update();
-            gui.eFrame();
+            m_gui.sFrame();
+            m_gui.Update();
+            m_gui.eFrame();
         }
 
         glfwSwapBuffers(m_frame);
@@ -181,7 +190,7 @@ public class Display {
 
     public void Close() {
         if (m_editor) {
-            gui.Close();
+            m_gui.Close();
         }
 
         RenderManager.FrameBuffer.DeleteFrameBuffer();

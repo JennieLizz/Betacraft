@@ -28,11 +28,11 @@ public class JLImGui {
 
     Texture test;
 
-    public void Init(Display display) {
-        m_frame = display.GetFrame();
-        m_display = display;
+    public void Init() {
+        m_frame = Engine.GetDisplay().GetFrame();
+        m_display = Engine.GetDisplay();
 
-        RenderManager.FrameBuffer.CopyFrameBuffer(display.GetWidth(), display.GetHeight());
+        RenderManager.FrameBuffer.CopyFrameBuffer(m_display.GetWidth(), m_display.GetHeight());
 
         ImGui.createContext();
         m_guiglfw.init(m_frame, true);
