@@ -53,20 +53,24 @@ public class App implements Game {
         */
 
         Shader le = new Shader("test", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
+        le.SetLayer("Troll");
 
-        new RawModel(1 + "", vertices, indices).transform.SetPosition(new Vector3f(0.0f, 0.0f, -2.0f));
+        RawModel troll = new RawModel(1 + "", vertices, indices);
+        troll.transform.SetPosition(new Vector3f(0.0f, 0.0f, -2.0f));
+        troll.SetLayer("Troll");
 
-        Texture troll = new Texture("TrollMan", "C:/Users/jenni/Downloads/trollBruh.png");
+        Texture trollFace = new Texture("TrollMan", "C:/Users/jenni/Downloads/trollBruh.png");
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, troll.GetTexture());
+        glBindTexture(GL_TEXTURE_2D, trollFace.GetTexture());
 
-        le.SetVariable("image", troll.GetTexture());
+        le.SetVariable("image", trollFace.GetTexture());
 
         new Shader("Over", "src/main/resources/shaders/CoolColors/sh.vert", "src/main/resources/shaders/CoolColors/sh.frag")
                 .SetLayer("Overlay", 0);
 
         RawModel bruh = new RawModel("Overlay", vertices, indices);
         bruh.SetLayer("Overlay");
+        bruh.transform.SetScale(new Vector3f(3, 3, 0));
 
         JLLog.SFPrint(Arrays.toString(ShaderManager.GetLayers().toArray()));
         JLLog.SFPrint(Arrays.toString(ModelManager.GetModels().keySet().toArray()));

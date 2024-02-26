@@ -10,5 +10,8 @@ uniform float iTime;
 uniform sampler2D image;
 
 void main() {
-    fragColor = texture(image, aTexCoord);
+    vec4 col = texture2D(image, aTexCoord);
+    if (col.a < 0.8)
+    discard;
+    fragColor = col;
 }

@@ -1,15 +1,14 @@
-#version 330 core
+#version 450 core
 
 out vec4 fragColor;
-in vec3 camPos;
+
+in vec3 aColor;
+in vec2 aTexCoord;
+in mat4 aView;
 
 uniform vec2 iResolution;
 uniform float iTime;
-vec2 fragCoord = vec2(gl_FragCoord.xy);
-
-uniform mat4 view;
-uniform mat4 proj;
-uniform mat4 model;
+uniform sampler2D image;
 
 #define DRAG_MULT 0.38 // changes how much waves pull on the water
 #define WATER_DEPTH 1.0 // how deep is the water
@@ -104,8 +103,9 @@ mat3 createRotationMatrixAxisAngle(vec3 axis, float angle) {
 }
 
 // Helper function that generates camera ray based on UV and mouse
-vec4 getRay(vec2 fragCoord) {
-    vec2 uv = ((fragCoord.xy / iResolution.xy) * 2.0 - 1.0) * vec2(iResolution.x / iResolution.y, 1.0);
+vec4 getRay() {
+    //
+    vec2 uv = (aTexCoord * 2.0 - 1.0);
     vec3 projB = normalize(vec3(uv.x, uv.y, 1.5));
     vec4 projC = vec4(projB.xyz, 1.0);
 /*
@@ -113,7 +113,7 @@ vec4 getRay(vec2 fragCoord) {
     * createRotationMatrixAxisAngle(vec3(1.0, 0.0, 0.0), 0)
     * proj;
     */
-    return view * projC;
+    return aView * projC;
 }
 
 // Ray-Plane intersection checker
@@ -172,7 +172,7 @@ vec3 aces_tonemap(vec3 color) {
 // Main
 void main() {
     // get the ray
-    vec3 ray = getRay(fragCoord).xyz;
+    vec3 ray = getRay().xyz;
     if (ray.y >= 0.0) {
         // if ray.y is positive, render the sky
         vec3 C = getAtmosphere(ray) + getSun(ray);
@@ -187,7 +187,7 @@ void main() {
 
     // define ray origin, moving around
     //vec3 origin = vec3(iTime * 4, CAMERA_HEIGHT, 1);
-    vec3 origin = vec3(0, 3, 0);
+    vec3 origin = vec3(0, 1, 0);
 
     // calculate intersections and reconstruct positions
     float highPlaneHit = intersectPlane(origin, ray, waterPlaneHigh, vec3(0.0, 1.0, 0.0));
