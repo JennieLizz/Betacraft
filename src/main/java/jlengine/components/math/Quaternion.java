@@ -4,7 +4,7 @@ import jlengine.components.ComponentBase;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class Quaternion implements ComponentBase {
+public class Quaternion extends ComponentBase {
     public static Vector3f QuaternionToEuler(Quaternionf quaternion) {
         quaternion.normalize();
 

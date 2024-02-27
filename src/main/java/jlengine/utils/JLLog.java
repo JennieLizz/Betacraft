@@ -32,7 +32,7 @@ public class JLLog {
      */
 
     static final long m_StartTime = System.currentTimeMillis();
-    static final String Start = "JLog - ";
+    static final String Start = "JLLog - ";
     static final String End = "------------------------";
     static boolean m_logsDisabled;
     public boolean showTime;

@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RenderManager {
-    public static int cWidth, cHeight;
+    public static int gWidth, gHeight;
     public static Shader default3D;
 
     static JLLog jl = new JLLog();
@@ -38,7 +38,7 @@ public class RenderManager {
                             Matrix4f[] mats = {viewMat, projMat, modelMat};
 
                             if (display.IsEditor())
-                                shader.SendUniformVariables(cWidth, cHeight, mats);
+                                shader.SendUniformVariables(gWidth, gHeight, mats);
                             else
                                 shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
 
@@ -73,7 +73,7 @@ public class RenderManager {
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                jl.Print("Failed to create FrameBuffer!", JLLog.TYPE.ERROR, false, new RuntimeException("Failed to create FrameBuffer!"));
+                jl.Print("Failed to create FrameBuffer!", JLLog.TYPE.WARNING, false, null);
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glBindTexture(GL_TEXTURE_2D, 0);

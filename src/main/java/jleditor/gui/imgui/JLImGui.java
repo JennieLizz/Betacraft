@@ -28,12 +28,12 @@ public class JLImGui {
 
     Texture test;
 
+    public JLImGui(Display display) {
+        m_display = display;
+        m_frame = m_display.GetFrame();
+    }
+
     public void Init() {
-        m_frame = Engine.GetDisplay().GetFrame();
-        m_display = Engine.GetDisplay();
-
-        RenderManager.FrameBuffer.CopyFrameBuffer(m_display.GetWidth(), m_display.GetHeight());
-
         ImGui.createContext();
         m_guiglfw.init(m_frame, true);
         m_guigl3.init(glslVersion);
@@ -134,13 +134,13 @@ public class JLImGui {
                     RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
                     m_sceneWidthOld = m_sceneWidth;
                     m_sceneHeightOld = m_sceneHeight;
-                } else if (!m_holding && !resizing) {
-                    ImGui.image(RenderManager.FrameBuffer.GetFrameTexture(), m_sceneWidth, m_sceneHeight, 0, 1, 1, 0);
                 }
 
                 if (m_holding && glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
                     m_holding = false;
                 }
+
+                ImGui.image(RenderManager.FrameBuffer.GetFrameTexture(), m_sceneWidth, m_sceneHeight, 0, 1, 1, 0);
             }
             ImGui.endChild();
         }

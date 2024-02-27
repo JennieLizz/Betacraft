@@ -1,6 +1,6 @@
 package jlengine.graphics;
 
-import jlengine.engine.Engine;
+import jlengine.utils.JLFrames;
 import jlengine.utils.JLLog;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -21,10 +21,6 @@ import static org.lwjgl.opengl.GL20.*;
 
 public final class Shader extends ShaderManager {
     static JLLog jl = new JLLog();
-
-    public int s_PositionAttrib;
-    public int s_TexCoordAttrib;
-    public int s_ColorAttrib;
 
     String m_shaderLayer = "Default";
     String m_name;
@@ -98,28 +94,6 @@ public final class Shader extends ShaderManager {
         m_shaderQueue.addLast(new ShaderQueue(name, value));
     }
 
-    /*
-    public void SetInt(String name, int value) {
-        m_shaderQueue.addLast(new ShaderQueue(name, value));
-    }
-
-    public void SetFloat(String name, float value) {
-        m_shaderQueue.addLast(new ShaderQueue(name, value));
-    }
-
-    public void SetVector2f(String name, Vector2f value) {
-        m_shaderQueue.addLast(new ShaderQueue(name, value));
-    }
-
-    public void SetVector3f(String name, Vector3f value) {
-        m_shaderQueue.addLast(new ShaderQueue(name, value));
-    }
-
-    public void SetMatrix4(String name, Matrix4f value) {
-        m_shaderQueue.addLast(new ShaderQueue(name, value));
-    }
-    */
-
     public void Use() {
         glUseProgram(m_program);
         for (ShaderQueue queue : m_shaderQueue) {
@@ -130,7 +104,7 @@ public final class Shader extends ShaderManager {
 
     public void SendUniformVariables(int width, int height, Matrix4f[] mats) {
         SetVariable("iResolution", new Vector2f(width, height));
-        SetVariable("iTime", (System.currentTimeMillis() - Engine.GetStartTime()) * 0.001f);
+        SetVariable("iTime", JLFrames.GetShaderTime());
         SetVariable("view", mats[0]);
         SetVariable("proj", mats[1]);
         SetVariable("model", mats[2]);

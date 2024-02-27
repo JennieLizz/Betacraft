@@ -1,16 +1,20 @@
 package jlengine.engine;
 
+import jlengine.utils.JLFrames;
+
 public class Engine {
     static Game m_game;
     static Display m_display;
 
-    public Engine(Display display, Game game) {
-        m_display = display;
+    public Engine(Game game, String[] args) {
+        m_display = new Display(1280, 720, "JLE Test!", args);
         m_game = game;
 
         m_game.Init();
 
         while (m_display.IsOpen()) {
+            m_display.SetTitle("JLE | " + JLFrames.GetFrameRate());
+
             m_display.Update(m_game);
         }
 

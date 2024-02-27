@@ -101,7 +101,7 @@ public class Texture extends TextureManager {
                     outputPixels, outputWidth, outputHeight, outputWidth * m_comp, 3, 4, 0);
 
             glTexImage2D(GL_TEXTURE_2D, ++mipmapLevel, format, outputWidth, outputHeight, 0, format, GL_UNSIGNED_BYTE, outputPixels);
-            
+
             if (mipmapLevel == 0)
                 stbi_image_free(m_imageBuffer);
             else
@@ -241,17 +241,5 @@ public class Texture extends TextureManager {
 
     public int GetTexture() {
         return m_textureID;
-    }
-
-    public void Delete() {
-        glDeleteTextures(m_textureID);
-        stbi_image_free(m_imageBuffer);
-
-        TextureManager.RemoveTextureFromManager(this);
-    }
-
-    void SDelete() {
-        glDeleteTextures(m_textureID);
-        stbi_image_free(m_imageBuffer);
     }
 }

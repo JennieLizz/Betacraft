@@ -6,13 +6,11 @@ import jlengine.engine.Engine;
 import jlengine.graphics.RenderManager;
 import jlengine.utils.JLLog;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
-public final class Camera implements ComponentBase {
+public final class Camera extends ComponentBase {
     static JLLog jl = new JLLog();
     public Transform perspective = new Transform();
     public Transform view = new Transform();
-    Vector3f m_pos;
     double m_fov = 90.0;
     float m_aspect;
     boolean disableAutoAspect;
@@ -41,10 +39,6 @@ public final class Camera implements ComponentBase {
 
     public void SetAspectRatio(float width, float height) {
         m_aspect = width / height;
-    }
-
-    public void DisableAutoAspectRatio() {
-        disableAutoAspect = !disableAutoAspect;
     }
 
     @Override

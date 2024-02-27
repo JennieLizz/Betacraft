@@ -21,9 +21,4 @@ public class TextureManager {
     public static Map<String, Texture> GetTextures() {
         return m_textures;
     }
-
-    public static void DeleteTextures() {
-        m_textures.forEach((Key, value) -> value.SDelete());
-        m_textures.clear();
-    }
 }

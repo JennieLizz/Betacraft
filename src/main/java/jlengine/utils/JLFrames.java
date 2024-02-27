@@ -3,19 +3,22 @@ package jlengine.utils;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 public class JLFrames {
-    static double m_lastFrameTime = 0;
-    static int m_frameCount = 0;
-    static double m_frameRate = 0.0;
+    static long m_startTime = System.currentTimeMillis();
+    static double m_lastFrameTime;
+    static int m_frameCount;
+    static double m_frameRate;
+    static float m_frameTimer;
+
+    public static void UpdateFrameRate() {
+        m_frameCount++;
+        m_frameTimer += GetDeltaTimeF();
+    }
 
     public static int GetFrameRate() {
-        double m_currentTime = glfwGetTime();
-        double m_deltaTime = m_currentTime - m_lastFrameTime;
-
-        m_frameCount++;
-
-        if (m_deltaTime >= 1.0) {
-            m_frameRate = m_frameCount / m_deltaTime;
+        if (m_frameTimer >= 1.0) {
+            m_frameRate = m_frameCount / GetDeltaTimeD();
             m_frameCount = 0;
+            m_frameTimer = 0.0f;
             m_lastFrameTime = glfwGetTime();
 
             return (int) m_frameRate;
@@ -25,12 +28,15 @@ public class JLFrames {
     }
 
     public static double GetDeltaTimeD() {
-        double m_currentTime = glfwGetTime();
-        return m_currentTime - m_lastFrameTime;
+        return glfwGetTime() - m_lastFrameTime;
     }
 
     public static float GetDeltaTimeF() {
         return (float) (glfwGetTime() - m_lastFrameTime);
+    }
+
+    public static long GetStartTime() {
+        return m_startTime;
     }
 
     public static double GetTimeSinceStartD() {
@@ -39,5 +45,13 @@ public class JLFrames {
 
     public static float GetTimeSinceStartF() {
         return (float) glfwGetTime();
+    }
+
+    public static long GetTimeMillisecs() {
+        return System.currentTimeMillis();
+    }
+
+    public static float GetShaderTime() {
+        return (GetTimeMillisecs() - GetStartTime()) * 0.001f;
     }
 }

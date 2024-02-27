@@ -5,7 +5,7 @@ import jlengine.components.ComponentBase;
 import jlengine.graphics.RenderManager;
 import jlengine.graphics.ShaderManager;
 import jlengine.model.ModelManager;
-import jlengine.texture.TextureManager;
+import jlengine.utils.JLFrames;
 import jlengine.utils.JLLog;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -25,7 +25,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Display {
     static JLLog jl = new JLLog();
 
-    final long m_frame;
+    long m_frame;
     int m_width, m_height;
     String m_title;
 
@@ -35,10 +35,10 @@ public class Display {
 
     boolean m_editor;
 
-    public Display(final int width, final int height, final String title, String[] args) {
-        SetWidth(width);
-        SetHeight(height);
-        SetTitle(title);
+    public Display(int width, int height, String title, String[] args) {
+        m_width = width;
+        m_height = height;
+        m_title = title;
 
         jl.showTime = true;
         jl.AllowSentFrom(this.getClass());
@@ -59,15 +59,15 @@ public class Display {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        m_frame = glfwCreateWindow(m_width, m_height, m_title, NULL, NULL);
+        m_frame = glfwCreateWindow(width, height, title, NULL, NULL);
         if (m_frame == NULL)
             jl.Print("glfw failed to init!", JLLog.TYPE.ERROR, false, new RuntimeException(
                     "Unable to initialize the GLFW Window."));
 
-        glfwSetKeyCallback(m_frame, (window, key, scancode, action, mods) -> {
+        /*glfwSetKeyCallback(m_frame, (window, key, scancode, action, mods) -> {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
                 glfwSetWindowShouldClose(window, true);
-        });
+        });*/
 
         try {
             glfwSetWindowSizeCallback(m_frame, (window, r_width, r_height) -> {
@@ -78,8 +78,6 @@ public class Display {
 
                 if (!m_editor)
                     glViewport(0, 0, r_width, r_height);
-
-
             });
         } catch (NullPointerException e) {
             jl.Print("Failed to set window size callback!", JLLog.TYPE.ERROR, false, e);
@@ -91,7 +89,7 @@ public class Display {
 
             glfwGetWindowSize(m_frame, pWidth, pHeight);
 
-            final GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
             assert vidmode != null;
             glfwSetWindowPos(
@@ -117,7 +115,7 @@ public class Display {
         glFrontFace(GL_CW);
 
         if (m_editor) {
-            m_gui = new JLImGui();
+            m_gui = new JLImGui(this);
             m_gui.Init();
         }
     }
@@ -127,7 +125,7 @@ public class Display {
     }
 
     public void SetWidth(final int width) {
-        this.m_width = width;
+        m_width = width;
     }
 
     public int GetHeight() {
@@ -135,15 +133,16 @@ public class Display {
     }
 
     public void SetHeight(final int height) {
-        this.m_height = height;
+        m_height = height;
     }
 
     public String GetTitle() {
         return m_title;
     }
 
-    public void SetTitle(final String title) {
-        this.m_title = title;
+    public void SetTitle(String title) {
+        glfwSetWindowTitle(m_frame, title);
+        m_title = title;
     }
 
     public long GetFrame() {
@@ -162,17 +161,21 @@ public class Display {
         return m_editor;
     }
 
+    public JLImGui GetGui() {
+        return m_gui;
+    }
+
     void Update(Game game) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        game.Update();
-
         RenderManager.FrameBuffer.BindFrameBuffer();
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         if (m_editor) {
-            RenderManager.cWidth = m_gui.GetSceneWidth();
-            RenderManager.cHeight = m_gui.GetSceneHeight();
+            RenderManager.gWidth = m_gui.GetSceneWidth();
+            RenderManager.gHeight = m_gui.GetSceneHeight();
         }
+
+        game.Update();
 
         RenderManager.Render(this);
 
@@ -183,6 +186,8 @@ public class Display {
             m_gui.Update();
             m_gui.eFrame();
         }
+
+        JLFrames.UpdateFrameRate();
 
         glfwSwapBuffers(m_frame);
         glfwPollEvents();
@@ -195,7 +200,6 @@ public class Display {
 
         RenderManager.FrameBuffer.DeleteFrameBuffer();
 
-        TextureManager.DeleteTextures();
         ModelManager.DeleteModels();
         ShaderManager.DeleteShaders();
 

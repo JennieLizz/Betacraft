@@ -1,12 +1,9 @@
 package jllauncher;
 
 import jlengine.components.graphics.camera.Camera;
-import jlengine.engine.Display;
 import jlengine.engine.Engine;
 import jlengine.engine.Game;
 import jlengine.graphics.Shader;
-import jlengine.graphics.ShaderManager;
-import jlengine.model.ModelManager;
 import jlengine.model.RawModel;
 import jlengine.texture.Texture;
 import jlengine.utils.JLFrames;
@@ -15,13 +12,13 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.util.Arrays;
-
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class App implements Game {
-    static JLLog jl;
-    static Display d;
+    static JLLog jl = new JLLog();
 
     float[] vertices = {
             // positions          // colors           // texture coords
@@ -39,11 +36,9 @@ public class App implements Game {
     Camera cam;
 
     public static void main(String[] args) {
-        jl = new JLLog();
         jl.showTime = true;
 
-        d = new Display(1280, 720, "JLE Test!", args);
-        new Engine(d, new App());
+        new Engine(new App(), args);
     }
 
     @Override
@@ -69,9 +64,6 @@ public class App implements Game {
         RawModel bruh = new RawModel("Overlay", vertices, indices);
         bruh.SetLayer("Overlay");
         bruh.transform.SetScale(new Vector3f(3, 3, 0));
-
-        JLLog.SFPrint(Arrays.toString(ShaderManager.GetLayers().toArray()));
-        JLLog.SFPrint(Arrays.toString(ModelManager.GetModels().keySet().toArray()));
 
         cam = new Camera();
         cam.view.SetTransform(new Matrix4f().setLookAt(

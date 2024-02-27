@@ -1,15 +1,15 @@
 package jlengine.components;
 
-public interface ComponentBase {
-    default void Init() {
+public class ComponentBase {
+    public void Init() {
 
     }
 
-    default void Update() {
+    public void Update() {
 
     }
 
-    default void OnWindowResize() {
-        
+    public void OnWindowResize() {
+
     }
 }
