@@ -131,7 +131,7 @@ public class JLImGui {
 
                 if (glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && resizing) {
                     m_holding = true;
-                    RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
+                    //RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
                     m_sceneWidthOld = m_sceneWidth;
                     m_sceneHeightOld = m_sceneHeight;
                 }

@@ -12,11 +12,6 @@ import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-
 public class App implements Game {
     static JLLog jl = new JLLog();
 
@@ -53,8 +48,6 @@ public class App implements Game {
         }
 
         Texture trollFace = new Texture("TrollMan", "C:/Users/jenni/Downloads/trollBruh.png");
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, trollFace.GetTexture());
 
         le.SetVariable("image", trollFace.GetTexture());
 
