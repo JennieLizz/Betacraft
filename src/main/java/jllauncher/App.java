@@ -33,7 +33,7 @@ public class App implements Game {
     public static void main(String[] args) {
         jl.showTime = true;
 
-        new Engine(new App(), args);
+        Engine.CreateEngine(new App(), args);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class App implements Game {
 
         for (float i = -3.0f; i <= 3.0f; i += 0.5f) {
             RawModel troll = new RawModel(i + "", vertices, indices);
-            troll.transform.SetPosition(new Vector3f(i, 0.0f, -2.0f));
+            troll.transform.SetPosition(new Vector3f(i, 0.0f, -i));
             troll.SetLayer("Troll");
         }
 

@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.stb.STBImage.*;
 import static org.lwjgl.stb.STBImageResize.stbir_resize_uint8_srgb;
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -63,6 +65,7 @@ public class Texture extends TextureManager {
         }
 
         m_textureID = glGenTextures();
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_textureID);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_MAG_FILTER);
@@ -241,5 +244,9 @@ public class Texture extends TextureManager {
 
     public int GetTexture() {
         return m_textureID;
+    }
+
+    public void Bind() {
+        glBindTexture(GL_TEXTURE_2D, m_textureID);
     }
 }

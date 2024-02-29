@@ -3,6 +3,8 @@ package jlengine.graphics;
 import jlengine.components.graphics.camera.Camera;
 import jlengine.engine.Display;
 import jlengine.model.RawModel;
+import jlengine.texture.Texture;
+import jlengine.texture.TextureManager;
 import jlengine.utils.JLLog;
 import org.joml.Matrix4f;
 
@@ -42,6 +44,7 @@ public class RenderManager {
                             else
                                 shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
 
+                            TextureManager.GetTextures().values().forEach(Texture::Bind);
                             shader.Use();
                             rm.Bind();
                         }

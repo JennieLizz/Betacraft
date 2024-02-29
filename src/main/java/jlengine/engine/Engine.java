@@ -6,7 +6,7 @@ public class Engine {
     static Game m_game;
     static Display m_display;
 
-    public Engine(Game game, String[] args) {
+    public static void CreateEngine(Game game, String[] args) {
         m_display = new Display(1280, 720, "JLE Test!", args);
         m_game = game;
 
