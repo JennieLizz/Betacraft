@@ -131,7 +131,7 @@ public class JLImGui {
 
                 if (glfwGetMouseButton(m_frame, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && resizing) {
                     m_holding = true;
-                    //RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
+                    RenderManager.FrameBuffer.CopyFrameBuffer((int) m_sceneWidth, (int) m_sceneHeight);
                     m_sceneWidthOld = m_sceneWidth;
                     m_sceneHeightOld = m_sceneHeight;
                 }
@@ -168,12 +168,12 @@ public class JLImGui {
         glViewport(0, 0, (int) m_sceneWidth, (int) m_sceneHeight);
     }
 
-    public int GetSceneWidth() {
-        return (int) m_sceneWidth;
+    public float GetSceneWidth() {
+        return m_sceneWidth;
     }
 
-    public int GetSceneHeight() {
-        return (int) m_sceneHeight;
+    public float GetSceneHeight() {
+        return m_sceneHeight;
     }
 
     public void Close() {

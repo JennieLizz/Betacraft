@@ -1,10 +1,5 @@
 package jlengine.engine;
 
-import jleditor.gui.imgui.JLImGui;
-import jlengine.components.ComponentBase;
-import jlengine.graphics.RenderManager;
-import jlengine.graphics.ShaderManager;
-import jlengine.model.ModelManager;
 import jlengine.utils.JLFrames;
 import jlengine.utils.JLLog;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -28,10 +23,6 @@ public class Display {
     long m_frame;
     int m_width, m_height;
     String m_title;
-
-    ComponentBase m_cb;
-
-    JLImGui m_gui;
 
     boolean m_editor;
 
@@ -113,11 +104,6 @@ public class Display {
 
         //glEnable(GL_CULL_FACE);
         glFrontFace(GL_CW);
-
-        if (m_editor) {
-            m_gui = new JLImGui(this);
-            m_gui.Init();
-        }
     }
 
     public int GetWidth() {
@@ -161,32 +147,11 @@ public class Display {
         return m_editor;
     }
 
-    public JLImGui GetGui() {
-        return m_gui;
+    void PreUpdate() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void Update(Game game) {
-        RenderManager.FrameBuffer.BindFrameBuffer();
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (m_editor) {
-            RenderManager.gWidth = m_gui.GetSceneWidth();
-            RenderManager.gHeight = m_gui.GetSceneHeight();
-        }
-
-        game.Update();
-
-        RenderManager.Render(this);
-
-        RenderManager.FrameBuffer.UnbindFrameBuffer();
-
-        if (m_editor) {
-            m_gui.sFrame();
-            m_gui.Update();
-            m_gui.eFrame();
-        }
-
+    void PostUpdate() {
         JLFrames.UpdateFrameRate();
 
         glfwSwapBuffers(m_frame);
@@ -194,15 +159,6 @@ public class Display {
     }
 
     public void Close() {
-        if (m_editor) {
-            m_gui.Close();
-        }
-
-        RenderManager.FrameBuffer.DeleteFrameBuffer();
-
-        ModelManager.DeleteModels();
-        ShaderManager.DeleteShaders();
-
         glfwFreeCallbacks(m_frame);
         glfwDestroyWindow(m_frame);
 

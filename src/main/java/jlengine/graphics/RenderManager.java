@@ -1,7 +1,9 @@
 package jlengine.graphics;
 
 import jlengine.components.graphics.camera.Camera;
+import jlengine.components.graphics.camera.EditorCamera;
 import jlengine.engine.Display;
+import jlengine.engine.Engine;
 import jlengine.model.RawModel;
 import jlengine.texture.Texture;
 import jlengine.texture.TextureManager;
@@ -12,18 +14,24 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class RenderManager {
-    public static int gWidth, gHeight;
     public static Shader default3D;
 
     static JLLog jl = new JLLog();
     static Camera m_camera;
+    static EditorCamera m_editorCamera;
 
     static {
         default3D = new Shader("Default", "src/main/resources/shaders/basic3D/sh.vert", "src/main/resources/shaders/basic3D/sh.frag");
     }
 
     public static void SetUseCamera(Camera camera) {
-        m_camera = camera;
+        if (!Engine.GetDisplay().IsEditor()) {
+            m_camera = camera;
+        }
+    }
+
+    public static void SetEditorCamera(EditorCamera camera) {
+        m_editorCamera = camera;
     }
 
     public static void Render(Display display) {
@@ -33,16 +41,20 @@ public class RenderManager {
                 if (rm.GetLayer().equals(layer)) {
                     ShaderManager.GetShaders().forEach(shader -> {
                         if (shader.GetLayer().equals(layer)) {
-                            Matrix4f viewMat = m_camera.view.GetTransform();
-                            Matrix4f projMat = m_camera.perspective.GetTransform();
                             Matrix4f modelMat = rm.transform.GetTransform();
-
-                            Matrix4f[] mats = {viewMat, projMat, modelMat};
-
-                            if (display.IsEditor())
-                                shader.SendUniformVariables(gWidth, gHeight, mats);
-                            else
+                            if (display.IsEditor()) {
+                                m_editorCamera.SetAspectRatio(Engine.GetGui().GetSceneWidth(), Engine.GetGui().GetSceneHeight());
+                                Matrix4f viewMat = m_editorCamera.view.GetTransform();
+                                Matrix4f projMat = m_editorCamera.perspective.GetTransform();
+                                Matrix4f[] mats = {viewMat, projMat, modelMat};
+                                shader.SendUniformVariables(Engine.GetGui().GetSceneWidth(), Engine.GetGui().GetSceneHeight(), mats);
+                            } else {
+                                m_camera.SetAspectRatio(display.GetWidth(), display.GetHeight());
+                                Matrix4f viewMat = m_camera.view.GetTransform();
+                                Matrix4f projMat = m_camera.perspective.GetTransform();
+                                Matrix4f[] mats = {viewMat, projMat, modelMat};
                                 shader.SendUniformVariables(display.GetWidth(), display.GetHeight(), mats);
+                            }
 
                             TextureManager.GetTextures().values().forEach(Texture::Bind);
                             shader.Use();

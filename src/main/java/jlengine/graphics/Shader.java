@@ -102,7 +102,7 @@ public final class Shader extends ShaderManager {
         m_shaderQueue.clear();
     }
 
-    public void SendUniformVariables(int width, int height, Matrix4f[] mats) {
+    public void SendUniformVariables(float width, float height, Matrix4f[] mats) {
         SetVariable("iResolution", new Vector2f(width, height));
         SetVariable("iTime", JLFrames.GetShaderTime());
         SetVariable("view", mats[0]);

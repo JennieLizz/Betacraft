@@ -7,13 +7,12 @@ import jlengine.graphics.RenderManager;
 import jlengine.utils.JLLog;
 import org.joml.Matrix4f;
 
-public final class Camera extends ComponentBase {
+public class Camera extends ComponentBase {
     static JLLog jl = new JLLog();
     public Transform perspective = new Transform();
     public Transform view = new Transform();
     double m_fov = 90.0;
     float m_aspect;
-    boolean disableAutoAspect;
     float m_zNear = 0.1f;
     float m_zFar = 100.0f;
 
@@ -39,11 +38,13 @@ public final class Camera extends ComponentBase {
 
     public void SetAspectRatio(float width, float height) {
         m_aspect = width / height;
+        UpdatePerspective();
     }
 
-    @Override
-    public void OnWindowResize() {
-        SetAspectRatio(Engine.GetDisplay().GetWidth(), Engine.GetDisplay().GetHeight());
+    public void UpdatePerspective() {
+        perspective.SetTransform(new Matrix4f()
+                .perspective((float) Math.toRadians(m_fov), m_aspect, m_zNear, m_zFar)
+        );
     }
 
     public void Use() {

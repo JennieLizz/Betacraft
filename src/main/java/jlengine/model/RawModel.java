@@ -9,7 +9,6 @@ import java.nio.IntBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
 
 public class RawModel extends ModelManager {
@@ -17,6 +16,7 @@ public class RawModel extends ModelManager {
     final int m_vaoID;
     final int m_vboID;
     final int m_eboID;
+    final int m_texID;
     public Transform transform = new Transform();
     String m_shaderLayer = "Default";
     float[] m_vertices;
@@ -26,12 +26,14 @@ public class RawModel extends ModelManager {
     FloatBuffer m_tex;
     IntBuffer m_ind;
 
-    public RawModel(String name, float[] vertices, int[] indices) {
+    public RawModel(String name, float[] vertices, int[] indices, float[] texCoords) {
         m_name = name;
         m_vertices = vertices;
         m_vert = StoreDataInFloatBuffer(vertices);
         m_indices = indices;
         m_ind = StoreDataInIntBuffer(indices);
+        m_texCoords = texCoords;
+        m_tex = StoreDataInFloatBuffer(texCoords);
 
         m_vaoID = glGenVertexArrays();
         glBindVertexArray(m_vaoID);
@@ -40,13 +42,17 @@ public class RawModel extends ModelManager {
         glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
         glBufferData(GL_ARRAY_BUFFER, m_vert, GL_STATIC_DRAW);
 
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0L);
+
         m_eboID = glGenBuffers();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboID);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ind, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * Float.BYTES, 0L);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * Float.BYTES, 3 * Float.BYTES);
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * Float.BYTES, 6 * Float.BYTES);
+        m_texID = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, m_texID);
+        glBufferData(GL_ARRAY_BUFFER, m_tex, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0L);
 
         glBindVertexArray(0);
         glBindBuffer(0, 0);
@@ -58,11 +64,9 @@ public class RawModel extends ModelManager {
         glBindVertexArray(m_vaoID);
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
         glDrawElements(GL_TRIANGLES, m_vertices.length, GL_UNSIGNED_INT, 0L);
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(2);
         glBindVertexArray(0);
     }
 
@@ -86,6 +90,10 @@ public class RawModel extends ModelManager {
         return m_eboID;
     }
 
+    public int GetTexID() {
+        return m_texID;
+    }
+
     public void SetVertices(float[] vertices) {
         m_vertices = vertices;
         m_vert = StoreDataInFloatBuffer(vertices);
@@ -94,6 +102,11 @@ public class RawModel extends ModelManager {
     public void SetIndices(int[] indices) {
         m_indices = indices;
         m_ind = StoreDataInIntBuffer(indices);
+    }
+
+    public void SetTexCoords(float[] texCoords) {
+        m_texCoords = texCoords;
+        m_tex = StoreDataInFloatBuffer(texCoords);
     }
 
     private FloatBuffer StoreDataInFloatBuffer(float[] data) {
